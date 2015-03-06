@@ -9,6 +9,8 @@ with open('/Users/linwoodc3/Google Drive/Python/projects/test.csv', 'rU') as inf
     stops = 0
     last_x_avg_vel= 0
     last_y_avg_vel= 0
+    last_x_avg_acl = 0
+    last_y_avg_acl=0
     max_velocity = 0
     for l in infile:
         
@@ -30,29 +32,32 @@ with open('/Users/linwoodc3/Google Drive/Python/projects/test.csv', 'rU') as inf
 
         """
 
-        # Calculate the average x component of velocity; we ignore time because it's always equal to 1 second
+        # Calculate the average x and y component of velocity; we ignore time because it's always equal to 1 second
         x_avg_vel = abs(abs(x) - abs(last_x))
 
-        # Calculate the average y compoent of velocity; we ignore time because it's always equal to 1 second
         y_avg_vel = abs(abs(y) - abs(last_y))
 
-        # Calculating the magnitude of the velocity vector with x and y components 
-        v_xy= math.sqrt((x_avg_vel**2) + (y_avg_vel**2))
+        # Calculate the average x and y direction accelerations; this will be critical to determining turns, braking, etc.
 
-        # Calculate average acceleration
+        x_avg_acl = abs(x) - abs(last_x)
+
+        y_avg_acl = abs(y) - abs(last_y)
 
     
 
         # counting braking or deceleration events
 
+        if x_avg_acl - last_x_avg_acl < 0 :
+            #x_dcl =
+
 
         if increment_traveled > max_velocity:
             max_velocity = increment_traveled # we have a new record!
 
-        print "seconds: %d, incremement: %f, x velocity: %f, y velocity: %f, magnitude of velocity: %f " % (seconds, increment_traveled, x_avg_vel, y_avg_vel, v_xy)
+        print "seconds: %d, incremement: %f, x velocity: %f, y velocity: %f, x accel: %f, y accel: %f" % (seconds, increment_traveled, x_avg_vel, y_avg_vel, x_avg_acl, y_avg_acl)
         seconds += 1
 
-        last_x, last_y= x, y
+        last_x, last_y = x, y
         
         
 
