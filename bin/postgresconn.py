@@ -15,8 +15,14 @@ import sys
 ###############################################################################
 
 def main():
+
+	#Enter username and password
+	username = raw_input("AWS username:")
+	password = raw_input("password:")
+
+
 	#Define our connection string
-	conn_string = "skidmarks.cssaygjswuzm.us-west-2.rds.amazonaws.com' dbname='skidmarks' user=%s password=%s port= 5432" % (raw_input("Enter username:"),raw_input("Enter password:")
+	conn_string = "skidmarks.cssaygjswuzm.us-west-2.rds.amazonaws.com' dbname='skidmarks' user=%s password=%s port= 5432" % (username, password)
  
 	# print the connection string we will use to connect
 	print "Connecting to database\n	->%s" % (conn_string)
@@ -27,6 +33,7 @@ def main():
 	# conn.cursor will return a cursor object, you can use this cursor to perform queries
 	cursor = conn.cursor()
 	print "Connected!\n"
+
  
 if __name__ == "__main__":
 	main()
