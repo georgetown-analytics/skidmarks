@@ -1,5 +1,13 @@
+###############################################################################
+# Imports
+###############################################################################
+
 import math
 import unicodecsv
+
+###############################################################################
+# Main Functions
+###############################################################################
 
 with open('/Users/linwoodc3/Google Drive/Python/projects/test.csv', 'rU') as infile:
     infile.next() #skip first line with headings
@@ -7,6 +15,7 @@ with open('/Users/linwoodc3/Google Drive/Python/projects/test.csv', 'rU') as inf
     seconds = 0
     distance = 0
     stops = 0
+    braking_event = 0
     last_x_avg_vel= 0
     last_y_avg_vel= 0
     last_x_avg_acl = 0
@@ -16,7 +25,7 @@ with open('/Users/linwoodc3/Google Drive/Python/projects/test.csv', 'rU') as inf
         
         x, y = l.split(',')
         x, y = float(x), float(y)
-        print x, y, last_x,last_y
+        
 
         # calculate displacement
         increment_traveled = math.sqrt( (x - last_x)**2 + (y - last_y)**2 ) 
@@ -39,26 +48,33 @@ with open('/Users/linwoodc3/Google Drive/Python/projects/test.csv', 'rU') as inf
 
         # Calculate the average x and y direction accelerations; this will be critical to determining turns, braking, etc.
 
-        x_avg_acl = abs(x) - abs(last_x)
+        x_avg_acl = x_avg_vel - last_x_avg_vel
 
-        y_avg_acl = abs(y) - abs(last_y)
+        y_avg_acl = y_avg_vel - last_y_avg_vel
 
     
 
         # counting braking or deceleration events
 
-        if x_avg_acl - last_x_avg_acl < 0 :
-            #x_dcl =
+        if x_avg_acl < 0 and y_avg_acl < 0:
+            braking_event += 1
+            print "braking event at %d" %(seconds)
+
+        if last_x_avg_vel == 0 and y_avg_vel == 0:
+            stops += 1
+            print "Stop event count is %d" %(stops)
 
 
         if increment_traveled > max_velocity:
             max_velocity = increment_traveled # we have a new record!
 
-        print "seconds: %d, incremement: %f, x velocity: %f, y velocity: %f, x accel: %f, y accel: %f" % (seconds, increment_traveled, x_avg_vel, y_avg_vel, x_avg_acl, y_avg_acl)
+        print "\nseconds: %d, incremement: %f, \nx velocity: %f, y velocity: %f, \nx accel: %f,y accel: %f" % (seconds, increment_traveled, x_avg_vel, y_avg_vel, x_avg_acl, y_avg_acl)
+        
         seconds += 1
 
         last_x, last_y = x, y
+        last_x_avg_vel, last_y_avg_vel = x_avg_vel, y_avg_vel
         
         
 
-    print "seconds: %d, distance: %f, avg. velocity(units/s): %f,  max velocity(units/s): %f" % (seconds, distance, distance/seconds, max_velocity)
+    print "seconds: %d \n, distance: %f\n, avg. velocity(units/s): %f\n,  max velocity(units/s): %f\n, braking: %f\n stops: %f\n" % (seconds, distance, distance/seconds, max_velocity, braking_event, stops)
