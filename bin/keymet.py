@@ -4,6 +4,8 @@
 
 import math
 import unicodecsv
+import pandas as pd
+import matplotlib.pyplot as plt
 
 ###############################################################################
 # Main Functions
@@ -53,6 +55,10 @@ with open('/Users/linwoodc3/Google Drive/Python/projects/test.csv', 'rU') as inf
         y_avg_acl = y_avg_vel - last_y_avg_vel
 
     
+        # Calculate the direction
+        direction_rad = math.atan2(y,x)
+        direction = math.degrees(direction_rad)
+        print "the direction is %f" % (direction)
 
         # counting braking or deceleration events
 
@@ -68,7 +74,7 @@ with open('/Users/linwoodc3/Google Drive/Python/projects/test.csv', 'rU') as inf
         if increment_traveled > max_velocity:
             max_velocity = increment_traveled # we have a new record!
 
-        print "\nseconds: %d, incremement: %f, \nx velocity: %f, y velocity: %f, \nx accel: %f,y accel: %f" % (seconds, increment_traveled, x_avg_vel, y_avg_vel, x_avg_acl, y_avg_acl)
+        print "\nseconds: %d incremement: %f \nx velocity: %f, y velocity: %f \nx accel: %f,y accel: %f" % (seconds, increment_traveled, x_avg_vel, y_avg_vel, x_avg_acl, y_avg_acl)
         
         seconds += 1
 
@@ -77,4 +83,4 @@ with open('/Users/linwoodc3/Google Drive/Python/projects/test.csv', 'rU') as inf
         
         
 
-    print "seconds: %d \n, distance: %f\n, avg. velocity(units/s): %f\n,  max velocity(units/s): %f\n, braking: %f\n stops: %f\n" % (seconds, distance, distance/seconds, max_velocity, braking_event, stops)
+    print "seconds: %d \ndistance: %f\navg. velocity(units/s): %f\nmax velocity(units/s): %f\nbraking: %f\nstops: %f\n" % (seconds, distance, distance/seconds, max_velocity, braking_event, stops)
