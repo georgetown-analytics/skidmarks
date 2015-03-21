@@ -6,6 +6,7 @@ import math
 import unicodecsv
 import pandas as pd
 import matplotlib.pyplot as plt
+from unum.units import * 
 
 ###############################################################################
 # Main Functions
@@ -14,7 +15,7 @@ import matplotlib.pyplot as plt
 with open('/Users/linwoodc3/Google Drive/Python/projects/test.csv', 'rU') as infile:
     infile.next() #skip first line with headings
     last_x, last_y, = 0.0, 0.0
-    seconds = 0
+    seconds = 0 
     distance = 0
     stops = 0
     braking_event = 0
@@ -55,20 +56,35 @@ with open('/Users/linwoodc3/Google Drive/Python/projects/test.csv', 'rU') as inf
         y_avg_acl = y_avg_vel - last_y_avg_vel
 
     
-        # Calculate the direction
+        # Calculate the direction in degrees
         direction_rad = math.atan2(y,x)
-        direction = math.degrees(direction_rad)
+        direction = int(math.degrees(direction_rad) + 360)
         print "the direction is %f" % (direction)
 
-        # counting braking or deceleration events
+        # Calculate cardinal direction
+        if direction == 0:
+            print 'East'
+        elif direction > 0 and direction < 90:
+            print 'Northeast'
+        elif direction == 90:
+            print 'North'
+        elif direction > 90 and direction< 180:
+            print  'Northwest'
+        elif direction == 180:
+            print  'West'
+        elif direction > 180 and direction < 270:
+            print 'Southwest'
+        elif direction == 270:
+            print  'South'
+        elif direction > 270 and direction < 360:
+            print  'Southeast' 
+        else:
+            print 
 
-        if x_avg_acl < 0 and y_avg_acl < 0:
-            braking_event += 1
-            print "braking event at %d" %(seconds)
+        
+            
 
-        if last_x_avg_vel == 0 and y_avg_vel == 0:
-            stops += 1
-            print "Stop event count is %d" %(stops)
+        
 
 
         if increment_traveled > max_velocity:
@@ -76,6 +92,16 @@ with open('/Users/linwoodc3/Google Drive/Python/projects/test.csv', 'rU') as inf
 
         print "\nseconds: %d incremement: %f \nx velocity: %f, y velocity: %f \nx accel: %f,y accel: %f" % (seconds, increment_traveled, x_avg_vel, y_avg_vel, x_avg_acl, y_avg_acl)
         
+        # counting braking or deceleration events
+
+        if x_avg_acl < 0 and y_avg_acl < 0:
+            braking_event += 1
+            print "\nbraking event at %d" %(seconds)
+
+        if last_x_avg_vel == 0 and y_avg_vel == 0:
+            stops += 1
+            print "Stop event count is %d" %(stops)
+
         seconds += 1
 
         last_x, last_y = x, y
