@@ -29,10 +29,7 @@ import logging as log
 ## Module Constants
 ##########################################################################
 
-# expects models to be in same directory
-  = os.path.dirname(__file__)
-.. = os.path.join(MODEL_DIR, "heating.pickle")
-.. = os.path.join(MODEL_DIR, "cooling.pickle")
+
 
 ###############################################################################
 # Helper Functions 2
