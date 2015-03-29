@@ -2,8 +2,10 @@
 # Information
 ###############################################################################
 # Created by Linwood Creekmore
+# Starter file by Danny Holloway of HumanGeo
+# Significant input from Vikram Mittal
 
-# In partial fulfillment of Georgetown University Data Analytics Graduate Certificate
+# In partial fulfillment of the requirements for the Georgetown University Data Analytics Graduate Certificate Program
 
 # March 25, 2015
 
@@ -20,19 +22,55 @@ import matplotlib.pyplot as plt
 from unum.units import * 
 import numpy as np
 from pylab import plot
+import os
 from os import walk
 from os.path import basename
 import unicodecsv as csv
 import logging as log
-
-##########################################################################
-## Module Constants
-##########################################################################
-
+import time
 
 
 ###############################################################################
-# Helper Functions 2
+# File Paths
+###############################################################################
+
+path = os.path.abspath(os.getcwd())
+LOG_DIR    = os.path.normpath(os.path.join(os.path.dirname(path),os.path.basename(path),"log"))
+INPUT_DIR  = os.path.normpath(os.path.join(os.path.dirname(path),os.path.basename(path)))
+OUTPUT_DIR = os.path.normpath(os.path.join(os.path.dirname(path),os.path.basename(path),"metrics"))
+
+
+###############################################################################
+# Create Logger, File Handlers, Formatters, and Filters (as needed)
+###############################################################################
+
+class SingleLevelFilter(log.Filter):
+    def __init__(self, passlevel, reject):
+        self.passlevel = passlevel
+        self.reject = reject
+
+    def filter(self, record):
+        if self.reject:
+            return (record.levelno != self.passlevel)
+        else:
+            return (record.levelno == self.passlevel)
+
+logger = log.getLogger("DataQuality")
+logger.setLevel(log.DEBUG)
+
+infoHandler = log.FileHandler(os.path.join(LOG_DIR,"Displacement_Summary.log"), mode='w')
+infoFilter = SingleLevelFilter(log.INFO, False)
+infoHandler.addFilter(infoFilter)
+
+warnHandler = log.FileHandler(os.path.join(LOG_DIR,"Warnings.log"), mode='w')
+warnFilter = SingleLevelFilter(log.WARNING, False)
+warnHandler.addFilter(warnFilter)
+
+logger.addHandler(infoHandler)
+logger.addHandler(warnHandler)
+
+###############################################################################
+# Helper Functions
 ###############################################################################
 
 def dotproduct(x,y):
@@ -40,6 +78,9 @@ def dotproduct(x,y):
 
 def tomph(velocity):
     return velocity * 2.24
+
+def meterstofeet(args):
+    return args * 3.28
     
 
 def getDriver(dirName):
@@ -60,21 +101,15 @@ def isFloat(str):
         return True
     except:
         return False
+
+
+
 ###############################################################################
-# Helper Functions
+# Key Metric Functions
 ###############################################################################
-'''
-def getDisplacement(x,last_x,y,last_y):
-    increment_traveled = math.sqrt( (x - last_x)**2 + (y - last_y)**2 ) 
-    return increment_traveled
-        
-        # increment total distance by displacement
-'''
-'''       
-def get_total_distance(distance,increment_traveled):
-    distance += increment_traveled
-    return distance
-'''
+
+
+
 '''
 We are dealing with a positon vector; therefore, we must calculate the x and y components of the position vector (i.e. car's position at point of time) for the car as it moves in space.
 Velocity is measured by dividing the change in position by the change in time.
@@ -102,14 +137,7 @@ def getacceleration(x_avg_vel,last_x_avg_vel,y_avg_vel,last_y_avg_vel):
 def getincrement(x,last_x,y,last_y):
     # calculate displacement
     increment_traveled = math.sqrt( (x - last_x)**2 + (y - last_y)**2 )
-    return increment_traveled
-
-    '''
-    if increment_traveled > max_velocity:
-        max_velocity = increment_traveled # we have a new record!
-
-    print "\nseconds: %d incremement: %f \nx velocity: %f, y velocity: %f \nx accel: %f,y accel: %f" % (seconds, increment_traveled, x_avg_vel, y_avg_vel, x_avg_acl, y_avg_acl)
-    '''    
+    return increment_traveled  
     
 # Calculate the direction
 
@@ -145,45 +173,25 @@ def getcardinal_direct(direction):
 
     return carddir
 
-# counting braking or deceleration events
-'''
-def countdeceleration_and_stops(x_avg_acl,y_avg_acl,x_avg_vel,y_avg_vel):
-
-    if x_avg_acl < 0 and y_avg_acl < 0:
-        braking_event += 1
-        return braking_event
-
-    if last_x_avg_vel == 0 and y_avg_vel == 0:
-        stops += 1
-        return stops
-
-
-# Keeping track of highest velocity
-def maxvelocity():
-    if increment_traveled > max_velocity:
-        max_velocity = increment_traveled # we have a new record!
-        return max_velocity
-'''
-
-
-
-
 
 ###############################################################################
 # Main Functions
 ###############################################################################
 
-def createfile():
-    #with open('/Users/linwoodc3/Google Drive/Python/projects/test.csv', 'rU') as infile:
+def createfile(dirName, fileName):
+    driver = getDriver(dirName)         # obtain driver id from directory name
+    # obtain trip id from file name
+    
 
     #open the 
-    with open('/home/captainobvious/Downloads/110.csv', 'rU') as infile:
+    with open(os.path.join(os.path.normpath(path), dirName, fileName), 'rU') as infile:
         reader = csv.DictReader(infile, delimiter=',', quotechar='"')
 
-        with open('/home/captainobvious/Downloads/110metrics.csv', 'wb') as outfile:
+        
+        with open(os.path.join(OUTPUT_DIR, str(driver) + "_" + fileName), 'wb') as outfile:
             writer = csv.writer(outfile)
             
-            writer.writerow(['Velocity (mph)', 'Acceleration (m/s^2)','Time (s)', 'Increment Traveled (m)','Direction (deg)','Direction(card)'])
+            writer.writerow(['Velocity (mph)', 'Acceleration (mi/(h.s.))','Time (s)', 'Increment Traveled (feet)','Direction (deg)','Direction(card)'])
 
             infile.next() #skip first line with headings
             last_x, last_y, = 0.0, 0.0
@@ -236,4 +244,8 @@ def createfile():
 ############################################################################### 
 
 if __name__ == '__main__':
-    createfile()
+    for dirName, subdirList, fileList in walk(INPUT_DIR):
+        if basename(dirName).isdigit():                         # directory likely represents a driver
+            for fileName in fileList:
+                if fileName.endswith('.csv') :       # trip data is in .csv files and a numeric file name is likely a trip file, and getFileBaseName(fileName).isdigit()
+                    createfile(dirName, fileName)
