@@ -1,13 +1,15 @@
+# -*- coding: utf-8 -*-
+
 ###############################################################################
 # Information
 ###############################################################################
-# Created by Linwood Creekmore
+# Created by Linwood Creekmore 
 # Starter file by Danny Holloway of HumanGeo
 # Significant input from Vikram Mittal
 
 # In partial fulfillment of the requirements for the Georgetown University Data Analytics Graduate Certificate Program
 
-# March 25, 2015
+# March 5, 2015
 
 # https://plus.google.com/+LinwoodCreekmoreIII/
 
@@ -73,11 +75,20 @@ logger.addHandler(warnHandler)
 # Helper Functions
 ###############################################################################
 
+# This is a generic dot product or Euclidean distance function
+
 def dotproduct(x,y):
     return math.sqrt(x**2 + y**2)
 
+# This is used to convert the meters per second velocity into a miles per hour value.  
+
 def tomph(velocity):
     return velocity * 2.24
+
+'''
+This function is used to convert the units for increment traveled from meters to feet; because we measure over each second, 
+ a more human readable unit is needed.
+'''
 
 def meterstofeet(args):
     return args * 3.28
@@ -117,7 +128,7 @@ The magnitude of the velocity vector can be found using the scalar dot product, 
 Acceleratioin is measured by dividing the change in velocity by the change in time
 '''
 
-        # Calculate the average horizontal and vertical component of velocity; we ignore time because it's always equal to 1 second
+# Calculate the average horizontal and vertical component of velocity; we ignore time because it's always equal to 1 second
         
 
 def getvelocity(x,y,last_x,last_y):
@@ -126,16 +137,16 @@ def getvelocity(x,y,last_x,last_y):
     return x_avg_vel, y_avg_vel
       
 
-        # Calculate the horizontal and vertical acceleration components; this will be critical to determining turns, braking, etc.
+# Calculate the horizontal and vertical acceleration components; this will be critical to determining turns, braking, etc.
 
 def getacceleration(x_avg_vel,last_x_avg_vel,y_avg_vel,last_y_avg_vel):
     x_avg_acl = x_avg_vel - last_x_avg_vel
     y_avg_acl = y_avg_vel - last_y_avg_vel
     return x_avg_acl,y_avg_acl
 
-
+# Calculate displacement
 def getincrement(x,last_x,y,last_y):
-    # calculate displacement
+
     increment_traveled = math.sqrt( (x - last_x)**2 + (y - last_y)**2 )
     return increment_traveled  
     
@@ -148,7 +159,10 @@ def getDirection(y,x):
         direction += 360
     return direction 
 
-# Calculate cardinal direction
+###
+#This calculation splits cardinal directions into buffer zones of 45 degrees each. We get the directional heading from 
+#the x,y location and output a string based on the buffer zone conditional statement below
+###
 
 def getcardinal_direct(direction):
     carddir = ''
@@ -178,66 +192,105 @@ def getcardinal_direct(direction):
 # Main Functions
 ###############################################################################
 
+
+
 def createfile(dirName, fileName):
     driver = getDriver(dirName)         # obtain driver id from directory name
     # obtain trip id from file name
     
 
-    #open the 
+    # This will open the driver directory/folder in a directory with all the driver files.  This should go through all 200 trip files for one driver.
+    
     with open(os.path.join(os.path.normpath(path), dirName, fileName), 'rU') as infile:
         reader = csv.DictReader(infile, delimiter=',', quotechar='"')
 
-        
-        with open(os.path.join(OUTPUT_DIR, str(driver) + "_" + fileName), 'wb') as outfile:
+        # This creates the output csv file that will hold all the calculated metrics
+
+        with open(os.path.join(OUTPUT_DIR, fileName), 'wb') as outfile:
             writer = csv.writer(outfile)
+
+            # This writes the header row for our output file using trip/driver IDs from Vik's IDify.py file
             
-            writer.writerow(['Velocity (mph)', 'Acceleration (mi/(h.s.))','Time (s)', 'Increment Traveled (feet)','Direction (deg)','Direction(card)'])
+            for idx, row in enumerate(reader):
+                if idx == 0:
+                    trip_id = 1
 
-            infile.next() #skip first line with headings
-            last_x, last_y, = 0.0, 0.0
-            seconds = 0 
-            distance = 0
-            stops = 0
-            braking_event = 0
-            last_x_avg_vel= 0
-            last_y_avg_vel= 0
-            max_velocity = 0
-            accelerations = 0
-            decelerations = 0
-            x_avg_vel = 0
-            y_avg_vel = 0
-            x_avg_acl = 0
-            y_avg_acl = 0
+                    writer.writerow(['driver_id', 'trip_id', 'Velocity (mph)', 'Acceleration (mi/(h.s.))','Time (s)', 'Increment Traveled (feet)','Direction (deg)','Direction(card)'])
 
-            metrics = []
+                    if not row == { 'driver_id':'driver_id', 'trip_id':'trip_id', 'x':'x', 'y':'y'}:
 
-            for l in infile:
+
+                        logger.warning("Missing or invalid header for driver %s and trip %s" % (driver, trip_id))
+
+                    else:
+
+                        if len(row) != 4:
+
+                            logger.warning("Too few/many values in row %s for driver %s and trip %s" % (idx, driver, trip_id))
             
-                x, y = l.split(',')
-                x, y = float(x), float(y)
 
-                x_avg_vel,y_avg_vel = getvelocity(x,y,last_x,last_y)
-                x_avg_acl,y_avg_acl = getacceleration(x_avg_vel,last_x_avg_vel,y_avg_vel,last_y_avg_vel)
+                    # skip first line with headings.
 
-                metrics.append(tomph(dotproduct(x_avg_vel, y_avg_vel)))
-                metrics.append(dotproduct(x_avg_acl,y_avg_acl))
-                metrics.append(seconds)
-                metrics.append(getincrement(x,last_x,y,last_y))
-                metrics.append(getDirection(y,x))
-                metrics.append(getcardinal_direct(getDirection(y,x)))
+                    infile.next() 
 
-                
-                writer.writerow(metrics)
+                    # Here we establish all the zero values for the key metrics we iterate.  These are defined in the key metrics documentation.
 
-                metrics = []
+                    last_x, last_y, = 0.0, 0.0
+                    seconds = 0 
+                    distance = 0
+                    stops = 0
+                    braking_event = 0
+                    last_x_avg_vel= 0
+                    last_y_avg_vel= 0
+                    max_velocity = 0
+                    accelerations = 0
+                    decelerations = 0
+                    x_avg_vel = 0
+                    y_avg_vel = 0
+                    x_avg_acl = 0
+                    y_avg_acl = 0
 
-                seconds += 1
 
-                last_x, last_y = x, y
-                last_x_avg_vel, last_y_avg_vel = x_avg_vel, y_avg_vel
+                    # Creating an list to append all the calculated key metric values
+                    metrics = []
 
-                
-                
+                    # Establish the trip id value to iterate over for our database
+                    trip_id = 1
+
+                    # We loop through the row values of x,y and calculate the key metric values, and then append the value to the metrics list above.
+
+                    for l in infile:
+                    
+                        driver_id, trip_id, x, y = l.split(',')
+                        driver_id, trip_id, x, y = int(driver_id), int(trip_id), float(x), float(y)
+            
+
+                        x_avg_vel,y_avg_vel = getvelocity(x,y,last_x,last_y)
+                        x_avg_acl,y_avg_acl = getacceleration(x_avg_vel,last_x_avg_vel,y_avg_vel,last_y_avg_vel)
+
+                        metrics.append(driver)
+                        metrics.append(trip_id)
+                        metrics.append(tomph(dotproduct(x_avg_vel, y_avg_vel)))
+                        metrics.append(dotproduct(x_avg_acl,y_avg_acl))
+                        metrics.append(seconds)
+                        metrics.append(getincrement(x,last_x,y,last_y))
+                        metrics.append(getDirection(y,x))
+                        metrics.append(getcardinal_direct(getDirection(y,x)))
+
+                        # We write the identifying and key metrics values to our csv
+
+                        writer.writerow(metrics)
+
+                        # Next, we clear our metrics list for the next loop, iterate our time and trip ID values, and store the previous locations and velocity.
+
+                        metrics = []
+                        seconds += 1
+                        trip_id += 1
+                        last_x, last_y = x, y
+                        last_x_avg_vel, last_y_avg_vel = x_avg_vel, y_avg_vel
+
+                        
+                        
 
 ###############################################################################
 # 'Main' Function
