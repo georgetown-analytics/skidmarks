@@ -25,6 +25,8 @@ from unum.units import *
 import numpy as np
 from pylab import plot
 import os
+import math
+import statistics
 from os import walk
 from os.path import basename
 import unicodecsv as csv
@@ -38,9 +40,9 @@ import time
 
 path = os.path.abspath(os.getcwd())
 LOG_DIR    = os.path.normpath(os.path.join(os.path.dirname(path),os.path.basename(path),"log"))
-INPUT_DIR  = os.path.normpath(os.path.join(os.path.dirname(path),os.path.basename(path)))
-OUTPUT_DIR = os.path.normpath(os.path.join(os.path.dirname(path),os.path.basename(path),"metrics"))
-
+INPUT_DIR  = os.path.normpath(os.path.join(os.path.dirname(path),os.path.basename(path),"input","test"))
+OUTPUT_DIR = os.path.normpath(os.path.join(os.path.dirname(path),os.path.basename(path),"output","trip"))
+OUTPUT_DIR2 = os.path.normpath(os.path.join(os.path.dirname(path),os.path.basename(path),"output","aggregate"))
 
 ###############################################################################
 # Create Logger, File Handlers, Formatters, and Filters (as needed)
@@ -206,7 +208,7 @@ def createfile(dirName, fileName):
 
         # This creates the output csv file that will hold all the calculated metrics
 
-        with open(os.path.join(OUTPUT_DIR, fileName), 'wb') as outfile:
+        with open(os.path.join(OUTPUT_DIR,fileName), 'wb') as outfile:
             writer = csv.writer(outfile)
 
             # This writes the header row for our output file using trip/driver IDs from Vik's IDify.py file
@@ -215,7 +217,7 @@ def createfile(dirName, fileName):
                 if idx == 0:
                     trip_id = 1
 
-                    writer.writerow(['driver_id', 'trip_id', 'Velocity (mph)', 'Acceleration (mi/(h.s.))','Time (s)', 'Increment Traveled (feet)','Direction (deg)','Direction(card)'])
+                    writer.writerow(['driver_id', 'trip_id', 'Velocity (mph)', 'Acceleration (mph per s)','Time (s)', 'Increment Traveled (feet)','Change in Direction per s','Direction (deg)','Direction(card)'])
 
                     if not row == { 'driver_id':'driver_id', 'trip_id':'trip_id', 'x':'x', 'y':'y'}:
 
@@ -249,13 +251,14 @@ def createfile(dirName, fileName):
                     y_avg_vel = 0
                     x_avg_acl = 0
                     y_avg_acl = 0
+                    last_heading = 0
 
 
                     # Creating an list to append all the calculated key metric values
                     metrics = []
 
                     # Establish the trip id value to iterate over for our database
-                    trip_id = 1
+                    #trip_id = 1
 
                     # We loop through the row values of x,y and calculate the key metric values, and then append the value to the metrics list above.
 
@@ -274,6 +277,7 @@ def createfile(dirName, fileName):
                         metrics.append(dotproduct(x_avg_acl,y_avg_acl))
                         metrics.append(seconds)
                         metrics.append(getincrement(x,last_x,y,last_y))
+                        metrics.append(getDirection(y,x) - getDirection(last_y,last_x))
                         metrics.append(getDirection(y,x))
                         metrics.append(getcardinal_direct(getDirection(y,x)))
 
@@ -287,7 +291,47 @@ def createfile(dirName, fileName):
                         seconds += 1
                         trip_id += 1
                         last_x, last_y = x, y
+
                         last_x_avg_vel, last_y_avg_vel = x_avg_vel, y_avg_vel
+                        direction = last_heading
+
+    
+    with open(os.path.join(OUTPUT_DIR, fileName), 'rU') as infile:
+        reader = csv.DictReader(infile, delimiter=',', quotechar='"')
+
+        with open(os.path.join(OUTPUT_DIR2,fileName), 'wb') as outfile:
+            writer = csv.writer(outfile)
+
+            df = pd.read_csv(os.path.join(OUTPUT_DIR,fileName))
+
+            writer.writerow(['driver_id', 'trip_id', 'Average Velocity (mph)', 'Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Max Direction Change per sec', ' Direction Stdev','Time (s)'])
+
+            agvalues = []
+            
+            
+
+            agvalues.append(driver)
+            agvalues.append(df.loc[1][1])
+            agvalues.append(df.loc[2:]['Velocity (mph)'].mean())
+            agvalues.append(df.loc[2:]['Velocity (mph)'].max())
+            agvalues.append(statistics.stdev(df.loc[1:]['Velocity (mph)']))
+            agvalues.append(df.loc[2:]['Acceleration (mph per s)'].mean())
+            agvalues.append(df.loc[2:]['Acceleration (mph per s)'].max())
+            agvalues.append(statistics.stdev(df.loc[1:]['Acceleration (mph per s)']))
+            agvalues.append(df.loc[2:]['Change in Direction per s'].max())
+            agvalues.append(statistics.stdev(df.loc[2:]['Direction (deg)']))
+            agvalues.append(df.loc[1:]['Time (s)'].max())
+
+            with open(os.path.join(OUTPUT_DIR2,fileName), 'wb') as outfile:
+                for l in outfile:
+                    writer.writerow(agvalues)
+
+                    agvalues = []
+                    trip_id += 1
+
+
+
+            
 
                         
                         
