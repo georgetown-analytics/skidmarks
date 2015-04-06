@@ -322,18 +322,10 @@ def createfile(dirName, fileName):
             agvalues.append(statistics.stdev(df.loc[2:]['Direction (deg)']))
             agvalues.append(df.loc[1:]['Time (s)'].max())
 
-            with open(os.path.join(OUTPUT_DIR2,fileName), 'wb') as outfile:
-                for l in outfile:
-                    writer.writerow(agvalues)
-
-                    agvalues = []
-                    trip_id += 1
-
-
-
             
-
-                        
+            writer.writerow(agvalues)
+                    
+            agvalues = []
                         
 
 ###############################################################################
