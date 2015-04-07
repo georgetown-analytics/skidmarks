@@ -3,26 +3,20 @@
 # Imports
 ###############################################################################
 
-from os import walk
-from os.path import basename
+import os
 import unicodecsv as csv
 import logging as log
-
-
-###############################################################################
-# Constants
-###############################################################################
-
-DIR_CHAR = '\\'
 
 
 ###############################################################################
 # File Paths
 ###############################################################################
 
-LOG_DIR    = 'C:\\Users\\Vikram\\Documents\\Georgetown\\Projects\\MyProjects\\SkidMarks\\logs'
-INPUT_DIR  = 'C:\\Users\\Vikram\\Documents\\Georgetown\\Projects\\MyProjects\\SkidMarks\\input\\test'
-OUTPUT_DIR = 'C:\\Users\\Vikram\\Documents\\Georgetown\\Projects\\MyProjects\\SkidMarks\\output\\trips'
+CODE_DIR	= os.path.abspath(os.getcwd())
+PROJECT_DIR = os.path.dirname(CODE_DIR)
+LOG_DIR     = os.path.join(PROJECT_DIR, 'logs')
+INPUT_DIR   = os.path.join(PROJECT_DIR, 'input', 'test')
+OUTPUT_DIR  = os.path.join(PROJECT_DIR, 'output', 'test')
 
 
 ###############################################################################
@@ -43,11 +37,11 @@ class SingleLevelFilter(log.Filter):
 logger = log.getLogger("DataQuality")
 logger.setLevel(log.DEBUG)
 
-infoHandler = log.FileHandler(LOG_DIR + DIR_CHAR + "Displacement_Summary.log", mode='w')
+infoHandler = log.FileHandler(os.path.join(LOG_DIR, "Displacement_Summary.log"), mode='w')
 infoFilter = SingleLevelFilter(log.INFO, False)
 infoHandler.addFilter(infoFilter)
 
-warnHandler = log.FileHandler(LOG_DIR + DIR_CHAR + "Warnings.log", mode='w')
+warnHandler = log.FileHandler(os.path.join(LOG_DIR, "Warnings.log"), mode='w')
 warnFilter = SingleLevelFilter(log.WARNING, False)
 warnHandler.addFilter(warnFilter)
 
@@ -60,7 +54,7 @@ logger.addHandler(warnHandler)
 ###############################################################################
 
 def getDriver(dirName):
-	return int(basename(dirName))
+	return int(os.path.basename(dirName))
 
 
 def getFileBaseName(baseName):
@@ -89,10 +83,10 @@ def parseFile(dirName, fileName):
 	dimensions = ('x', 'y')
 	displacement = {'x': 0, 'y': 0}
 	
-	with open(dirName + DIR_CHAR + fileName, 'rb') as infile:
+	with open(os.path.join(dirName, fileName), 'rU') as infile:
 		reader = csv.DictReader(infile, fieldnames=dimensions, delimiter=',', quotechar='"')
 		
-		with open(OUTPUT_DIR + DIR_CHAR + str(driver) + "_" + fileName, 'wb') as outfile:
+		with open(os.path.join(OUTPUT_DIR, str(driver) + "_" + fileName), 'wb') as outfile:
 			writer = csv.writer(outfile)
 			
 			for idx, row in enumerate(reader):
@@ -122,8 +116,8 @@ def parseFile(dirName, fileName):
 ###############################################################################	
 
 if __name__ == '__main__':
-	for dirName, subdirList, fileList in walk(INPUT_DIR):
-		if basename(dirName).isdigit():							# directory likely represents a driver
+	for dirName, subdirList, fileList in os.walk(INPUT_DIR):
+		if os.path.basename(dirName).isdigit():							# directory likely represents a driver
 			for fileName in fileList:
 				if fileName.endswith('.csv') and getFileBaseName(fileName).isdigit():		# trip data is in .csv files and a numeric file name is likely a trip file
 					parseFile(dirName, fileName)
