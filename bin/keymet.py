@@ -79,6 +79,13 @@ logger.addHandler(warnHandler)
 
 # This is a generic dot product or Euclidean distance function
 
+def change(y,x,last_x,last_y):
+    change = abs((getDirection(y,x) - getDirection(last_y,last_x)))
+
+    if change >=180:
+        change = 360 - change
+    return change
+
 def dotproduct(x,y):
     return math.sqrt(x**2 + y**2)
 
@@ -129,6 +136,8 @@ Velocity is measured by dividing the change in position by the change in time.
 The magnitude of the velocity vector can be found using the scalar dot product, which is equivalent to Pythagorean theorem.
 Acceleratioin is measured by dividing the change in velocity by the change in time
 '''
+
+# Calculate total Displacement; since we always start from 0,0, it's just the dot product of the last point
 
 # Calculate the average horizontal and vertical component of velocity; we ignore time because it's always equal to 1 second
         
@@ -198,7 +207,11 @@ def getcardinal_direct(direction):
 
 def createfile(dirName, fileName):
     driver = getDriver(dirName)         # obtain driver id from directory name
-    # obtain trip id from file name
+    #df2 = pd.read_csv(os.path.join(OUTPUT_DIR,fileName))
+
+    
+
+
     
 
     # This will open the driver directory/folder in a directory with all the driver files.  This should go through all 200 trip files for one driver.
@@ -260,8 +273,12 @@ def createfile(dirName, fileName):
                     # Establish the trip id value to iterate over for our database
                     #trip_id = 1
 
+                    
+
+
                     # We loop through the row values of x,y and calculate the key metric values, and then append the value to the metrics list above.
 
+                    
                     for l in infile:
                     
                         driver_id, trip_id, x, y = l.split(',')
@@ -277,7 +294,9 @@ def createfile(dirName, fileName):
                         metrics.append(dotproduct(x_avg_acl,y_avg_acl))
                         metrics.append(seconds)
                         metrics.append(getincrement(x,last_x,y,last_y))
-                        metrics.append(getDirection(y,x) - getDirection(last_y,last_x))
+
+                        # properly resolves changes in direction that go counterclockwise from 0
+                        metrics.append(change(y,x,last_x,last_y))
                         metrics.append(getDirection(y,x))
                         metrics.append(getcardinal_direct(getDirection(y,x)))
 
@@ -296,16 +315,18 @@ def createfile(dirName, fileName):
                         direction = last_heading
 
     
+    
+
     with open(os.path.join(OUTPUT_DIR, fileName), 'rU') as infile:
         reader = csv.DictReader(infile, delimiter=',', quotechar='"')
 
         with open(os.path.join(OUTPUT_DIR2,fileName), 'wb') as outfile:
-            writer = csv.writer(outfile)
+            writer = csv.writer(outfile, lineterminator = '\n')
 
             df = pd.read_csv(os.path.join(OUTPUT_DIR,fileName))
+            writer.writerow(['driver_id', 'trip_id', 'Average Velocity (mph)', 'Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement (meters)''Max Direction Change per sec', ' Direction Stdev','Time (s)'])
 
-            writer.writerow(['driver_id', 'trip_id', 'Average Velocity (mph)', 'Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Max Direction Change per sec', ' Direction Stdev','Time (s)'])
-
+            
             agvalues = []
             
             
@@ -318,6 +339,8 @@ def createfile(dirName, fileName):
             agvalues.append(df.loc[2:]['Acceleration (mph per s)'].mean())
             agvalues.append(df.loc[2:]['Acceleration (mph per s)'].max())
             agvalues.append(statistics.stdev(df.loc[1:]['Acceleration (mph per s)']))
+            
+            #agvalues.append(dotproduct(df2.loc[(len(df2)-1)]['x'],df2.loc[(len(df2)-1)]['y']))
             agvalues.append(df.loc[2:]['Change in Direction per s'].max())
             agvalues.append(statistics.stdev(df.loc[2:]['Direction (deg)']))
             agvalues.append(df.loc[1:]['Time (s)'].max())
@@ -326,7 +349,7 @@ def createfile(dirName, fileName):
             writer.writerow(agvalues)
                     
             agvalues = []
-                        
+                       
 
 ###############################################################################
 # 'Main' Function
