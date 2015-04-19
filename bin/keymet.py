@@ -151,8 +151,6 @@ def getvelocity(x,y,last_x,last_y):
 # Calculate the horizontal and vertical acceleration components; this will be critical to determining turns, braking, etc.
 
 def getacceleration(x_avg_vel,last_x_avg_vel,y_avg_vel,last_y_avg_vel):
-    x_avg_acl = x_avg_vel - last_x_avg_vel
-    y_avg_acl = y_avg_vel - last_y_avg_vel
     return x_avg_acl,y_avg_acl
 
 # Calculate displacement
@@ -265,6 +263,7 @@ def createfile(dirName, fileName):
                     x_avg_acl = 0
                     y_avg_acl = 0
                     last_heading = 0
+                    lastvel = 0
 
 
                     # Creating an list to append all the calculated key metric values
@@ -291,7 +290,7 @@ def createfile(dirName, fileName):
                         metrics.append(driver)
                         metrics.append(trip_id)
                         metrics.append(tomph(dotproduct(x_avg_vel, y_avg_vel)))
-                        metrics.append(dotproduct(x_avg_acl,y_avg_acl))
+                        metrics.append(velocity - lastvel)
                         metrics.append(seconds)
                         metrics.append(getincrement(x,last_x,y,last_y))
 
@@ -310,6 +309,7 @@ def createfile(dirName, fileName):
                         seconds += 1
                         trip_id += 1
                         last_x, last_y = x, y
+                        lastvel = velocity
 
                         last_x_avg_vel, last_y_avg_vel = x_avg_vel, y_avg_vel
                         direction = last_heading
