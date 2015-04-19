@@ -285,11 +285,12 @@ def createfile(dirName, fileName):
             
 
                         x_avg_vel,y_avg_vel = getvelocity(x,y,last_x,last_y)
-                        x_avg_acl,y_avg_acl = getacceleration(x_avg_vel,last_x_avg_vel,y_avg_vel,last_y_avg_vel)
+                        #x_avg_acl,y_avg_acl = getacceleration(x_avg_vel,last_x_avg_vel,y_avg_vel,last_y_avg_vel)
 
                         metrics.append(driver)
                         metrics.append(trip_id)
-                        metrics.append(tomph(dotproduct(x_avg_vel, y_avg_vel)))
+                        velocity = tomph(dotproduct(x_avg_vel, y_avg_vel))
+                        metrics.append(velocity)
                         metrics.append(velocity - lastvel)
                         metrics.append(seconds)
                         metrics.append(getincrement(x,last_x,y,last_y))
