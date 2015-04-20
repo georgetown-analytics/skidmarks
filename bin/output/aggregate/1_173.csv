@@ -1,0 +1,2 @@
+driver_id,trip_id,Average Velocity (mph),Max Velocity,Velocity Stdev,Average Acceleration (mph per s),Max Acceleration (mph per s), Acceleration Stdev,Displacement (meters)Max Direction Change per sec, Direction Stdev,Time (s)
+1,173,29.505398403326812,52.546026757501231,16.965421283301076,-0.053626705814489646,4.9305448097156699,2.013264877934448,1.7640009119267861,17.571249819620274,678
