@@ -5,12 +5,11 @@
 # Information
 ###############################################################################
 # Created by Linwood Creekmore 
-# Starter file by Danny Holloway of HumanGeo
-# Significant input from Vikram Mittal
+
 
 # In partial fulfillment of the requirements for the Georgetown University Data Analytics Graduate Certificate Program
 
-# March 5, 2015
+# April 19, 2015
 
 # https://plus.google.com/+LinwoodCreekmoreIII/
 
@@ -18,23 +17,48 @@
 # Imports
 ###############################################################################
 
-import math
-import unicodecsv
 import pandas as pd
-import matplotlib.pyplot as plt
-from unum.units import * 
-import numpy as np
-from pylab import plot
 import os
-import math
-import statistics
-from os import walk
-from os.path import basename
-import unicodecsv as csv
-import logging as log
-import time
 
 
 ###############################################################################
 # File Paths
 ###############################################################################
+
+path = os.path.abspath(os.getcwd())
+
+###############################################################################
+# Helper Functions
+###############################################################################
+
+###############################################################################
+# Main Functions
+###############################################################################
+
+driver = str(raw_input("Enter a driver number: \n "))
+# get the change in direction  from the file
+
+# get the sum of the change in 3 seconds in a column
+
+df = pd.read_csv(os.path.join(path,"output","trip", "1_" + driver + ".csv"))
+
+numbers = df.loc[1:][['Change in Direction per s', 'Velocity (mph)']]
+
+
+print numbers[1:10]
+
+val = pd.rolling_sum(numbers, window = 5)
+print "Now here is the rolling window \n", val.loc[val['Change in Direction per s'] >= 60].index
+
+
+'''
+for l in val:
+	if l >= 45:
+		print l
+	else: 
+		"nothing"
+
+** Calculating turns and stops: Use the rolling window.  Divide "Change in Direction per s" by "Velocity (mph)" or vice versa to get a figure.
+These are windows of 5 seconds, so values that are closer to 1 indicate a driver that conducts turning-like maneuvers at high speeds.  We will 
+count the numbers of times a driver is in a high speed, high turn state. 
+'''
