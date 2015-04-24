@@ -45,10 +45,11 @@ df = pd.read_csv(os.path.join(path,"output","trip", "1_" + driver + ".csv"))
 numbers = df.loc[1:][['Change in Direction per s', 'Velocity (mph)']]
 
 
-print numbers[1:10]
-
 val = pd.rolling_sum(numbers, window = 5)
-print "Now here is the rolling window \n", val.loc[val['Change in Direction per s'] >= 60].index
+print len(val)
+print val[20:35]
+print "Seconds where high maneuvers are going on  \n", val.loc[val['Change in Direction per s'] >= 60].index
+
 
 
 '''
