@@ -42,13 +42,36 @@ driver = str(raw_input("Enter a driver number: \n "))
 
 df = pd.read_csv(os.path.join(path,"output","trip", "1_" + driver + ".csv"))
 
+df['start'] = 0
+df['end'] = 0
+
 numbers = df.loc[1:][['Change in Direction per s', 'Velocity (mph)']]
 
 
 val = pd.rolling_sum(numbers, window = 5)
 print len(val)
 print val[20:35]
-print "Seconds where high maneuvers are going on  \n", val.loc[val['Change in Direction per s'] >= 60].index
+
+turns = val.loc[val['Change in Direction per s'] >= 60].index
+
+print "Seconds where high maneuvers are going on  \n", turns
+
+#iterate through turns and flag start and end of turns in the dataframe
+
+df['start'][turns[0]] = 1	#the first index must be the start of the first turn
+
+for i in range(1, len(turns)-1):
+	#print i
+	if turns[i] - 1 > turns[i-1]:
+		df['start'][turns[i]] = 1	#the current index and last index are more than 1 second apart so this must be the start of a new turn
+		df['end'][turns[i-1]] = 1	#the last index must also be the end of the last turn since we are beginning a new turn
+
+df['end'][turns[len(turns)-1]] = 1	#the last index must be the end of the last turn
+
+
+for index, row in df.iterrows():
+	if row['start'] == 1 or row['end'] == 1:
+		print index, row
 
 
 
