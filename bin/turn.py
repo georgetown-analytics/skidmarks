@@ -35,7 +35,7 @@ path = os.path.abspath(os.getcwd())
 # Main Functions
 ###############################################################################
 
-driver = str(raw_input("Enter a driver number: \n "))
+driver = str(raw_input("Enter a driver number: \n >"))
 # get the change in direction  from the file
 
 # get the sum of the change in 3 seconds in a column
@@ -50,39 +50,38 @@ numbers = df.loc[1:][['Change in Direction per s', 'Velocity (mph)']]
 
 val = pd.rolling_sum(numbers, window = 5)
 print len(val)
-print val[20:35]
+print val[720:750]
 
 turns = val.loc[val['Change in Direction per s'] >= 60].index
 
-print "Seconds where high maneuvers are going on  \n", turns
+if len(turns) < 1:
+	print "No measurable maneuvers"
 
-#iterate through turns and flag start and end of turns in the dataframe
+else: 
 
-df['start'][turns[0]] = 1	#the first index must be the start of the first turn
+	print "Seconds where high maneuvers are going on  \n", turns
 
-for i in range(1, len(turns)-1):
-	#print i
-	if turns[i] - 1 > turns[i-1]:
-		df['start'][turns[i]] = 1	#the current index and last index are more than 1 second apart so this must be the start of a new turn
-		df['end'][turns[i-1]] = 1	#the last index must also be the end of the last turn since we are beginning a new turn
+	#iterate through turns and flag start and end of turns in the dataframe
 
-df['end'][turns[len(turns)-1]] = 1	#the last index must be the end of the last turn
+	df['start'][turns[0]] = 1	#the first index must be the start of the first turn
+
+	for i in range(1, len(turns)-1):
+		#print i
+		if turns[i] - 1 > turns[i-1]:
+			df['start'][turns[i]] = 1	#the current index and last index are more than 1 second apart so this must be the start of a new turn
+			df['end'][turns[i-1]] = 1	#the last index must also be the end of the last turn since we are beginning a new turn
+
+	df['end'][turns[len(turns)-1]] = 1	#the last index must be the end of the last turn
 
 
-for index, row in df.iterrows():
-	if row['start'] == 1 or row['end'] == 1:
-		print index, row
+	for index, row in df.iterrows():
+		if row['start'] == 1 or row['end'] == 1:
+			print index, row
 
 
 
 '''
-for l in val:
-	if l >= 45:
-		print l
-	else: 
-		"nothing"
-
-** Calculating turns and stops: Use the rolling window.  Divide "Change in Direction per s" by "Velocity (mph)" or vice versa to get a figure.
+Calculating turns and stops: Use the rolling window.  Divide "Change in Direction per s" by "Velocity (mph)" or vice versa to get a figure.
 These are windows of 5 seconds, so values that are closer to 1 indicate a driver that conducts turning-like maneuvers at high speeds.  We will 
 count the numbers of times a driver is in a high speed, high turn state. 
 '''
