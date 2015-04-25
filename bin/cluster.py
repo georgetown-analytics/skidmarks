@@ -2,14 +2,15 @@ import os
 import time
 import numpy as np
 import pandas as pd
-from conf import settings
+import matplotlib.pyplot as plt
+#from conf import settings
 from datetime import datetime
 from bokeh.charts import Scatter
 from sklearn.cluster import KMeans
 from collections import OrderedDict
 from bokeh.plotting import output_file
 from sklearn.preprocessing import Imputer
-
+'''
 #Create a timestamp for the output file
 def time_stamp():
     """
@@ -31,8 +32,10 @@ def create_ordered_dict(data_frame, group_by, x_field="X", y_field="Y"):
         lng = getattr(g.get_group(i), x_field)
         pdict[i] = zip(lat,lng)
     return pdict
-    
+ '''   
 def main():
+    colors = np.array([x for x in 'bgrcmykbgrcmykbgrcmykbgrcmyk'])
+    colors = np.hstack([colors] * 20)
     """
     This function will
         -load data from a csv
@@ -42,41 +45,47 @@ def main():
     """
     
     #load data from a CSV to a dataframe
-    with open(settings["crime_data"]) as in_data:
+    with open('./lin.csv') as in_data:
         crime_data = pd.DataFrame.from_csv(in_data, sep=',')
     
     crime_data=crime_data.fillna(value=-999)
     
     #load all numeric data into an array. The offense column from the crime data
     #is excluded
-    as_array = np.asfarray(crime_data[["X","Y"]])
+    as_array = np.asfarray(crime_data[['Average Velocity (mph)','Average Acceleration (mph per s)']])#, 'Max Velocity', 'Velocity Stdev', 'Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev', 'Max Direction Change per sec', ' Direction Stdev', 'Time (s)']])
     
     #number of groups
-    n_clusters=40
-    
+    n_clusters=4
+    '''
     #Correct missing data 
     imputer = Imputer(missing_values=-999, strategy="mean")
     patched = imputer.fit_transform(as_array)
-    
+    '''
     #cluster data 
     cluster = KMeans(n_clusters=n_clusters)
-    cluster.fit(patched)
+    cluster.fit(as_array)
+
+    print cluster
+    print as_array
+
+    predictions = cluster.predict(as_array)
     
     #assigned grouped labels to the crime data
     labels = cluster.labels_
     crime_data["labels"]=labels
     
-    pdict = create_ordered_dict(crime_data, "labels")
-    
-    #location of output graph
-    file_name = os.path.join("..", 'tests', "kmeans_clusters_{0}.html".format(time_stamp()))
-    output_file(file_name)
-    
-    #create out graph
-    TOOLS="pan,wheel_zoom,box_zoom,reset"
-    scatter = Scatter(pdict.values(), title="Crime Clusters", filename=file_name, tools=TOOLS)
-    scatter.show()
 
+    
+    #Plotting crap
+    centers = cluster.cluster_centers_
+    center_colors = colors[:len(centers)]
+    plt.scatter(centers[:, 0], centers[:, 1], s=100, c=center_colors)
+    
+    #plt.subplot(1,4,idx+1)
+    plt.scatter(as_array[:, 0], as_array[:, 1], color=colors[predictions].tolist(), s=10)
 
+    #plt.scatter( )
+    plt.show()
 if __name__ == "__main__":
     main()
+
