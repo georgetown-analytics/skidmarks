@@ -5,7 +5,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 #from conf import settings
 from datetime import datetime
-from bokeh.charts import Scatter
+from sklearn.decomposition import PCA
+#from bokeh.charts import Scatter
 from sklearn.cluster import KMeans
 from collections import OrderedDict
 from bokeh.plotting import output_file
@@ -52,7 +53,7 @@ def main():
     
     #load all numeric data into an array. The offense column from the crime data
     #is excluded
-    as_array = np.asfarray(crime_data[['Average Velocity (mph)','Average Acceleration (mph per s)']])#, 'Max Velocity', 'Velocity Stdev', 'Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev', 'Max Direction Change per sec', ' Direction Stdev', 'Time (s)']])
+    as_array = np.asfarray(crime_data[['Average Velocity (mph)','Average Acceleration (mph per s)', 'Max Velocity', 'Velocity Stdev', 'Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev', 'Max Direction Change per sec', ' Direction Stdev', 'Time (s)']])
     
     #number of groups
     n_clusters=4
@@ -73,8 +74,20 @@ def main():
     #assigned grouped labels to the crime data
     labels = cluster.labels_
     crime_data["labels"]=labels
-    
 
+###############################################################################
+# PCA Reduction
+###############################################################################
+
+    ''' reduced_data = decomposition.PCA(n_components=2).fit_trans4form(as_array)
+    kmeans = KMeans(init='k-means++', n_clusters=4, n_init=10)
+    kmeans.fit(reduced_data)'''
+    
+    from sklearn import decomposition
+    pca = decomposition.PCA(n_components=2)
+    pca.fit(as_array)
+    PCA(copy=True, n_components=2, whiten=False)
+    X = pca.transform(as_array)
     
     #Plotting crap
     centers = cluster.cluster_centers_
@@ -82,7 +95,7 @@ def main():
     plt.scatter(centers[:, 0], centers[:, 1], s=100, c=center_colors)
     
     #plt.subplot(1,4,idx+1)
-    plt.scatter(as_array[:, 0], as_array[:, 1], color=colors[predictions].tolist(), s=10)
+    plt.scatter(as_array[:, 0], as_array[:, 6], color=colors[predictions].tolist(), s=10)
 
     #plt.scatter( )
     plt.show()
