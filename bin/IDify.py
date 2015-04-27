@@ -6,6 +6,7 @@
 import os
 import unicodecsv as csv
 import logging as log
+import keymet
 
 
 ###############################################################################
@@ -15,9 +16,11 @@ import logging as log
 CODE_DIR	= os.path.abspath(os.getcwd())
 PROJECT_DIR = os.path.dirname(CODE_DIR)
 LOG_DIR     = os.path.join(PROJECT_DIR, 'logs')
-INPUT_DIR   = os.path.join(PROJECT_DIR, 'input', 'test')
-OUTPUT_DIR  = os.path.join(PROJECT_DIR, 'output', 'test')
+INPUT_DIR   = os.path.join(CODE_DIR, 'input', 'test')
+OUTPUT_DIR  = os.path.join(CODE_DIR, 'output', 'test')
 
+print "Home: %s, \n  Absolute: %s \n Input:%s \n Output: %s." % (
+    CODE_DIR, PROJECT_DIR, INPUT_DIR, OUTPUT_DIR)
 
 ###############################################################################
 # Create Logger, File Handlers, Formatters, and Filters (as needed)
@@ -85,9 +88,13 @@ def parseFile(dirName, fileName):
 	
 	with open(os.path.join(dirName, fileName), 'rU') as infile:
 		reader = csv.DictReader(infile, fieldnames=dimensions, delimiter=',', quotechar='"')
+
+		#print infile
 		
 		with open(os.path.join(OUTPUT_DIR, str(driver) + "_" + fileName), 'wb') as outfile:
 			writer = csv.writer(outfile)
+
+			print driver
 			
 			for idx, row in enumerate(reader):
 				if idx == 0:
@@ -109,6 +116,8 @@ def parseFile(dirName, fileName):
 						writer.writerow([driver, trip, row['x'], row['y']])
 			
 			logger.info("%s\t%s\t%s\t%s" % (driver, trip, displacement['x'], displacement['y']))
+
+os.system('python keymet.py')
 
 
 ###############################################################################
