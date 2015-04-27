@@ -63,6 +63,8 @@ else:
 
 	#iterate through turns and flag start and end of turns in the dataframe
 
+	maneuvers = 0
+
 	df['start'][turns[0]] = 1	#the first index must be the start of the first turn
 
 	for i in range(1, len(turns)-1):
@@ -76,7 +78,10 @@ else:
 
 	for index, row in df.iterrows():
 		if row['start'] == 1 or row['end'] == 1:
-			print index, row
+			print index, row['Velocity (mph)']
+		if row['end'] == 1:
+			maneuvers += 1
+	print "Driver # %s made %d maneuver(s) in this trip" % (driver,maneuvers)
 
 
 
