@@ -38,11 +38,15 @@ import time
 # File Paths
 ###############################################################################
 
-path = os.path.abspath(os.getcwd())
-LOG_DIR    = os.path.normpath(os.path.join(os.path.dirname(path),os.path.basename(path),"log"))
-INPUT_DIR  = os.path.normpath(os.path.join(os.path.dirname(path),os.path.basename(path),"input","test"))
-OUTPUT_DIR = os.path.normpath(os.path.join(os.path.dirname(path),os.path.basename(path),"output","trip"))
+path        = os.path.abspath(os.getcwd())
+LOG_DIR     = os.path.normpath(os.path.join(os.path.dirname(path),os.path.basename(path),"log"))
+INPUT_DIR   = os.path.normpath(os.path.join(os.path.dirname(path),os.path.basename(path),"output","test"))
+OUTPUT_DIR  = os.path.normpath(os.path.join(os.path.dirname(path),os.path.basename(path),"output","trip"))
 OUTPUT_DIR2 = os.path.normpath(os.path.join(os.path.dirname(path),os.path.basename(path),"output","aggregate"))
+
+print "Home: %s, \nAbsolute: %s \nInput:%s \nOutput: %s." % (
+    path, INPUT_DIR, OUTPUT_DIR2, OUTPUT_DIR)
+
 
 ###############################################################################
 # Create Logger, File Handlers, Formatters, and Filters (as needed)
@@ -79,32 +83,26 @@ logger.addHandler(warnHandler)
 
 # This is a generic dot product or Euclidean distance function
 
-def change(y,x,last_x,last_y):
-    change = abs((getDirection(y,x) - getDirection(last_y,last_x)))
-
-    if change >=180:
-        change = 360 - change
-    return change
 
 def dotproduct(x,y):
     return math.sqrt(x**2 + y**2)
 
-# This is used to convert the meters per second velocity into a miles per hour value.  
 
+# This is used to convert the meters per second velocity into a miles per hour value.  
 def tomph(velocity):
     return velocity * 2.24
+
 
 '''
 This function is used to convert the units for increment traveled from meters to feet; because we measure over each second, 
  a more human readable unit is needed.
 '''
-
 def meterstofeet(args):
-    return args * 3.28
-    
+    return args * 3.28    
+
 
 def getDriver(dirName):
-    return int(basename(dirName))
+    return (basename(dirName))
 
 
 def getFileBaseName(baseName):
@@ -123,44 +121,36 @@ def isFloat(str):
         return False
 
 
-
 ###############################################################################
 # Key Metric Functions
 ###############################################################################
 
 
-
 '''
 We are dealing with a positon vector; therefore, we must calculate the x and y components of the position vector (i.e. car's position at point of time) for the car as it moves in space.
 Velocity is measured by dividing the change in position by the change in time.
-The magnitude of the velocity vector can be found using the scalar dot product, which is equivalent to Pythagorean theorem.
-Acceleratioin is measured by dividing the change in velocity by the change in time
+The magnitude of the velocity vector can be found using the scalar dot product, which is equivalent to using the Pythagorean theorem.
+Acceleration is measured by dividing the change in velocity by the change in time
 '''
 
 # Calculate total Displacement; since we always start from 0,0, it's just the dot product of the last point
 
 # Calculate the average horizontal and vertical component of velocity; we ignore time because it's always equal to 1 second
-        
-
-def getvelocity(x,y,last_x,last_y):
+def getVelocity(x,y,last_x,last_y):
     x_avg_vel = abs(abs(x) - abs(last_x)) 
     y_avg_vel = abs(abs(y) - abs(last_y))  
     return x_avg_vel, y_avg_vel
       
 
 # Calculate the horizontal and vertical acceleration components; this will be critical to determining turns, braking, etc.
-
-def getacceleration(x_avg_vel,last_x_avg_vel,y_avg_vel,last_y_avg_vel):
+def getAcceleration(x_avg_vel,last_x_avg_vel,y_avg_vel,last_y_avg_vel):
     return x_avg_acl,y_avg_acl
 
-# Calculate displacement
-def getincrement(x,last_x,y,last_y):
+# Calculates the NEW heading of the vehicle
+def heading(y,x,last_y,last_x):
+    return getDirection(y-last_y,x-last_x)
 
-    increment_traveled = math.sqrt( (x - last_x)**2 + (y - last_y)**2 )
-    return increment_traveled  
-    
 # Calculate the direction
-
 def getDirection(y,x):
     direction_rad = math.atan2(y,x)
     direction = math.degrees(direction_rad) 
@@ -168,12 +158,20 @@ def getDirection(y,x):
         direction += 360
     return direction 
 
+# Calculate displacement
+def getIncrement(x,last_x,y,last_y):
+    increment_traveled = math.sqrt( (x - last_x)**2 + (y - last_y)**2 )
+    return increment_traveled
+
+
+
+
 ###
 #This calculation splits cardinal directions into buffer zones of 45 degrees each. We get the directional heading from 
 #the x,y location and output a string based on the buffer zone conditional statement below
 ###
 
-def getcardinal_direct(direction):
+def getCardinalDirection(direction):
     carddir = ''
     if direction >= 0 and direction <= 22.5:
         carddir = 'East'
@@ -202,15 +200,11 @@ def getcardinal_direct(direction):
 ###############################################################################
 
 
-
-def createfile(dirName, fileName):
+def createFile(dirName, fileName):
     driver = getDriver(dirName)         # obtain driver id from directory name
     #df2 = pd.read_csv(os.path.join(OUTPUT_DIR,fileName))
 
-    
-
-
-    
+    fileName.split('_')
 
     # This will open the driver directory/folder in a directory with all the driver files.  This should go through all 200 trip files for one driver.
     
@@ -232,8 +226,7 @@ def createfile(dirName, fileName):
 
                     if not row == { 'driver_id':'driver_id', 'trip_id':'trip_id', 'x':'x', 'y':'y'}:
 
-
-                        logger.warning("Missing or invalid header for driver %s and trip %s" % (driver, trip_id))
+                        logger.warning("Missing or invalid header for driver %s and trip %s" % ("driver", trip_id))
 
                     else:
 
@@ -262,7 +255,8 @@ def createfile(dirName, fileName):
                     y_avg_vel = 0
                     x_avg_acl = 0
                     y_avg_acl = 0
-                    last_heading = 0
+                    last_heading = 0.0
+                    cur_heading = 0.0
                     lastvel = 0
 
 
@@ -272,33 +266,29 @@ def createfile(dirName, fileName):
                     # Establish the trip id value to iterate over for our database
                     #trip_id = 1
 
-                    
-
-
                     # We loop through the row values of x,y and calculate the key metric values, and then append the value to the metrics list above.
 
-                    
                     for l in infile:
                     
-                        driver_id, trip_id, x, y = l.split(',')
+                        driver_id, trip_id, x, y = l.split(',') 
                         driver_id, trip_id, x, y = int(driver_id), int(trip_id), float(x), float(y)
-            
+                        x_avg_vel,y_avg_vel = getVelocity(x,y,last_x,last_y)
 
-                        x_avg_vel,y_avg_vel = getvelocity(x,y,last_x,last_y)
-                        #x_avg_acl,y_avg_acl = getacceleration(x_avg_vel,last_x_avg_vel,y_avg_vel,last_y_avg_vel)
 
-                        metrics.append(driver)
-                        metrics.append(trip_id)
-                        velocity = tomph(dotproduct(x_avg_vel, y_avg_vel))
+                        metrics.append(fileName.split('_')[0]) #append driver #
+                        metrics.append(trip_id) #append trip id
+                        velocity = tomph(dotproduct(x_avg_vel, y_avg_vel)) 
                         metrics.append(velocity)
-                        metrics.append(velocity - lastvel)
-                        metrics.append(seconds)
-                        metrics.append(getincrement(x,last_x,y,last_y))
+                        metrics.append(velocity - lastvel) #acceleration
+                        metrics.append(seconds) #time
+                        metrics.append(getIncrement(x,last_x,y,last_y)) #distance traveled
 
-                        # properly resolves changes in direction that go counterclockwise from 0
-                        metrics.append(change(y,x,last_x,last_y))
-                        metrics.append(getDirection(y,x))
-                        metrics.append(getcardinal_direct(getDirection(y,x)))
+                        last_heading = cur_heading
+                        cur_heading = heading(y,x, last_y, last_x)
+
+                        metrics.append(abs(cur_heading - last_heading))
+                        metrics.append(heading(y,x, last_y, last_x))
+                        metrics.append(getCardinalDirection(heading(y,x,last_y,last_x)))
 
                         # We write the identifying and key metrics values to our csv
 
@@ -316,8 +306,6 @@ def createfile(dirName, fileName):
                         direction = last_heading
 
     
-    
-
     with open(os.path.join(OUTPUT_DIR, fileName), 'rU') as infile:
         reader = csv.DictReader(infile, delimiter=',', quotechar='"')
 
@@ -328,11 +316,9 @@ def createfile(dirName, fileName):
             writer.writerow(['driver_id', 'trip_id', 'Average Velocity (mph)', 'Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement (meters)''Max Direction Change per sec', ' Direction Stdev','Time (s)'])
 
             
-            agvalues = []
-            
-            
+            agvalues = []        
 
-            agvalues.append(driver)
+            agvalues.append(fileName.split('_')[0])
             agvalues.append(df.loc[1][1])
             agvalues.append(df.loc[2:]['Velocity (mph)'].mean())
             agvalues.append(df.loc[2:]['Velocity (mph)'].max())
@@ -340,7 +326,6 @@ def createfile(dirName, fileName):
             agvalues.append(df.loc[2:]['Acceleration (mph per s)'].mean())
             agvalues.append(df.loc[2:]['Acceleration (mph per s)'].max())
             agvalues.append(statistics.stdev(df.loc[1:]['Acceleration (mph per s)']))
-            
             #agvalues.append(dotproduct(df2.loc[(len(df2)-1)]['x'],df2.loc[(len(df2)-1)]['y']))
             agvalues.append(df.loc[2:]['Change in Direction per s'].max())
             agvalues.append(statistics.stdev(df.loc[2:]['Direction (deg)']))
@@ -358,7 +343,13 @@ def createfile(dirName, fileName):
 
 if __name__ == '__main__':
     for dirName, subdirList, fileList in walk(INPUT_DIR):
-        if basename(dirName).isdigit():                         # directory likely represents a driver
-            for fileName in fileList:
-                if fileName.endswith('.csv') :       # trip data is in .csv files and a numeric file name is likely a trip file, and getFileBaseName(fileName).isdigit()
-                    createfile(dirName, fileName)
+        for fileName in fileList:
+            if fileName.endswith('.csv'):
+                '''
+                for dirName, subdirList, fileList in walk(INPUT_DIR):
+                    if basename(dirName).isdigit():                         # directory likely represents a driver
+                        for fileName in fileList:
+                            if fileName.endswith('.csv') :       # trip data is in .csv files and a numeric file name is likely a trip file, and getFileBaseName(fileName).isdigit()
+                '''
+                createFile(dirName, fileName)
+    os.system('python lin.py')

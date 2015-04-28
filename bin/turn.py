@@ -36,24 +36,29 @@ path = os.path.abspath(os.getcwd())
 # Main Functions
 ###############################################################################
 
-driver = str(raw_input("Enter a driver number: \n >"))
-# get the change in direction  from the file
+driver = raw_input('Pick a driver. Enter a number between 1-3612:\n')
+trip = raw_input('Pick a trip. Enter a number between 1-200:\n')
+path = os.path.abspath(os.getcwd())
+#pathtocsv = os.path.normpath(os.path.join(path,"output","test",str(driver),str(driver)+"_"+str(trip)+".csv"))
+pathtocsv = os.path.normpath(os.path.join(path,"output","trip",str(driver)+"_"+str(trip)+".csv"))
 
-# get the sum of the change in 3 seconds in a column
+print pathtocsv
 
-df = pd.read_csv(os.path.join(path,"output","trip", "1_" + driver + ".csv"))
+df = pd.read_csv(pathtocsv)
 
 df['start'] = 0
 df['end'] = 0
 
-numbers = df.loc[1:][['Change in Direction per s', 'Velocity (mph)']]
+print df[250:280][['Velocity (mph)','Change in Direction per s']]
+
+numbers = df.loc[1:][['Velocity (mph)', 'Change in Direction per s']] 
 
 
-val = pd.rolling_sum(numbers, window = 5)
+val = pd.rolling_sum(numbers, window = 3)
 print len(val)
-print val[720:750]
+print val[700:750]
 
-turns = val.loc[val['Change in Direction per s'] >= 60].index
+turns = val.loc[val['Change in Direction per s'] >= 45].index
 
 if len(turns) < 1:
 	print "No measurable maneuvers"
@@ -83,6 +88,8 @@ else:
 		if row['end'] == 1:
 			maneuvers += 1
 	print "Driver # %s made %d maneuver(s) in this trip" % (driver,maneuvers)
+
+	#return maneuvers
 
 
 
