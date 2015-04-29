@@ -19,8 +19,8 @@ LOG_DIR     = os.path.join(PROJECT_DIR, 'logs')
 INPUT_DIR   = os.path.join(CODE_DIR, 'input', 'test')
 OUTPUT_DIR  = os.path.join(CODE_DIR, 'output', 'test')
 
-print "Home: %s, \n  Absolute: %s \n Input:%s \n Output: %s." % (
-    CODE_DIR, PROJECT_DIR, INPUT_DIR, OUTPUT_DIR)
+#print "Home: %s, \n  Absolute: %s \n Input:%s \n Output: %s." % (
+   # CODE_DIR, PROJECT_DIR, INPUT_DIR, OUTPUT_DIR)
 
 ###############################################################################
 # Create Logger, File Handlers, Formatters, and Filters (as needed)
@@ -91,33 +91,40 @@ def parseFile(dirName, fileName):
 
 		#print infile
 		
-		with open(os.path.join(OUTPUT_DIR, str(driver) + "_" + fileName), 'wb') as outfile:
-			writer = csv.writer(outfile)
-
-			print driver
+		for l in infile:
+			try:
+				if not os.path.exists(os.path.join(OUTPUT_DIR, str(driver))):
+					os.makedirs(os.path.join(OUTPUT_DIR, str(driver)))
 			
-			for idx, row in enumerate(reader):
-				if idx == 0:
-					writer.writerow(['driver_id', 'trip_id', 'x', 'y'])
+			except OSError:
+					print "Root directory does not exist, creating", os.makedirs(os.path.join(OUTPUT_DIR, str(driver)))
+			else:
+				
+				with open(os.path.join(OUTPUT_DIR, str(driver),str(driver) + "_" + fileName), 'wb') as outfile:
+					writer = csv.writer(outfile)
+
+					print driver
 					
-					if not row == {'x':'x', 'y':'y'}:
-						logger.warning("Missing or invalid header for driver %s and trip %s" % (driver, trip))
-				else:
-					if len(row) != 2:
-						logger.warning("Too few/many values in row %s for driver %s and trip %s" % (idx, driver, trip))
-					else:
-						for dim in dimensions:
-							if isFloat(row[dim]):
-								row[dim] = float(row[dim])
-								displacement[dim] += row[dim]
+					for idx, row in enumerate(reader):
+						if idx == 0:
+							writer.writerow(['driver_id', 'trip_id', 'x', 'y'])
+							
+							if not row == {'x':'x', 'y':'y'}:
+								logger.warning("Missing or invalid header for driver %s and trip %s" % (driver, trip))
+						else:
+							if len(row) != 2:
+								logger.warning("Too few/many values in row %s for driver %s and trip %s" % (idx, driver, trip))
 							else:
-								logger.warning("Invalid value in row %s for driver %s and trip %s" % (idx, driver, trip))
+								for dim in dimensions:
+									if isFloat(row[dim]):
+										row[dim] = float(row[dim])
+										displacement[dim] += row[dim]
+									else:
+										logger.warning("Invalid value in row %s for driver %s and trip %s" % (idx, driver, trip))
+								
+								writer.writerow([driver, trip, row['x'], row['y']])
 						
-						writer.writerow([driver, trip, row['x'], row['y']])
-			
-			logger.info("%s\t%s\t%s\t%s" % (driver, trip, displacement['x'], displacement['y']))
-
-os.system('python keymet.py')
+						logger.info("%s\t%s\t%s\t%s" % (driver, trip, displacement['x'], displacement['y']))
 
 
 ###############################################################################
@@ -130,3 +137,4 @@ if __name__ == '__main__':
 			for fileName in fileList:
 				if fileName.endswith('.csv') and getFileBaseName(fileName).isdigit():		# trip data is in .csv files and a numeric file name is likely a trip file
 					parseFile(dirName, fileName)
+	os.system('python keymet.py')										# call keymet.py after adding ids to each file
