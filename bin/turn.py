@@ -88,6 +88,7 @@ def TurnCount(driver,trip):
 				print index, row['Velocity (mph)']
 			if row['end'] == 1:
 				maneuvers += 1
+		
 		print "Driver # %s made %d maneuver(s) in this trip" % (driver,maneuvers)
 
 		return maneuvers
