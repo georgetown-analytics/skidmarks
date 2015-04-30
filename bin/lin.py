@@ -10,7 +10,7 @@ for subdir, dirs, files in os.walk(rootdir):
     for file in files:
     	if file.endswith('.csv'):
             with open(os.path.join(subdir, file),'rb') as infile:
-                fieldnames = ['driver_id', 'trip_id', 'Average Velocity (mph)', 'Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Max Direction Change per sec', ' Direction Stdev','Time (s)']
+                fieldnames = ['driver_id', 'trip_id', 'Average Velocity (mph)', 'Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement (meters)','Max Direction Change per sec', ' Direction Stdev','Time (s)', 'Turns', 'Aggressive Turns', 'Stops', 'Large Deceleration Events', 'Deceleration Events']
                 reader = csv.reader(infile)
                 reader.next()
                 for row in reader:
@@ -20,13 +20,11 @@ for subdir, dirs, files in os.walk(rootdir):
 
 with open(os.path.normpath(os.path.join(os.path.dirname(path),os.path.basename(path),"lin.csv")),'wb') as outfile:
 	writer = csv.writer(outfile, delimiter=',', quotechar='"', lineterminator = '\n')				
-	writer.writerow(['driver_id', 'trip_id', 'Average Velocity (mph)', 'Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Max Direction Change per sec', ' Direction Stdev','Time (s)'])
+	writer.writerow(['driver_id', 'trip_id', 'Average Velocity (mph)', 'Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement (meters)','Max Direction Change per sec', ' Direction Stdev','Time (s)', 'Turns', 'Aggressive Turns', 'Stops', 'Large Deceleration Events', 'Deceleration Events'])
     		
 	for l in agvalues:
 		writer.writerow(l)
 		
-
-
 
 
 
