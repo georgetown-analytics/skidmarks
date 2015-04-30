@@ -330,8 +330,8 @@ def createFile(dirName, fileName):
             writer = csv.writer(outfile, lineterminator = '\n')
 
             df = pd.read_csv(os.path.join(OUTPUT_DIR,fileName))
-            writer.writerow(['driver_id', 'trip_id', 'Average Velocity (mph)', 'Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement (meters)''Max Direction Change per sec', ' Direction Stdev','Time (s)'])
-
+            writer.writerow(['driver_id', 'trip_id', 'Average Velocity (mph)', 'Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement (meters)','Max Direction Change per sec', ' Direction Stdev','Time (s)'])
+            df2 = pd.read_csv(os.path.join(INPUT_DIR,str(driver),fileName))
             
             agvalues = []        
 
@@ -343,7 +343,8 @@ def createFile(dirName, fileName):
             agvalues.append(df.loc[2:]['Acceleration (mph per s)'].mean())
             agvalues.append(df.loc[2:]['Acceleration (mph per s)'].max())
             agvalues.append(statistics.stdev(df.loc[1:]['Acceleration (mph per s)']))
-            #agvalues.append(dotproduct(df2.loc[(len(df2)-1)]['x'],df2.loc[(len(df2)-1)]['y']))
+            displace = dotproduct(df2.loc[(len(df2)-1)]['x'],df2.loc[(len(df2)-1)]['y'])
+            agvalues.append(displace)
             agvalues.append(df.loc[2:]['Change in Direction per s'].max())
             agvalues.append(statistics.stdev(df.loc[2:]['Direction (deg)']))
             agvalues.append(df.loc[1:]['Time (s)'].max())
