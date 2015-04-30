@@ -5,7 +5,7 @@
 # Information
 ###############################################################################
 # Created by Linwood Creekmore 
-# Input by Vikkram Mittal
+# Input by Vikram Mittal
 
 
 # In partial fulfillment of the requirements for the Georgetown University Data Analytics Graduate Certificate Program
@@ -37,7 +37,6 @@ path = os.path.abspath(os.getcwd())
 ###############################################################################
 
 def TurnCount(driver,trip):
-
 
 	path = os.path.abspath(os.getcwd())
 	#pathtocsv = os.path.normpath(os.path.join(path,"output","test",str(driver),str(driver)+"_"+str(trip)+".csv"))
