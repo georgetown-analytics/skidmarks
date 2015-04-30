@@ -277,18 +277,32 @@ def createFile(dirName, fileName):
 
                         metrics.append(fileName.split('_')[0]) #append driver #
                         metrics.append(trip_id) #append trip id
-                        velocity = tomph(dotproduct(x_avg_vel, y_avg_vel)) 
+                        velocity = tomph(dotproduct(x_avg_vel, y_avg_vel))
+                        if velocity > 200:
+                            velocity = lastvel
+
                         metrics.append(velocity)
-                        metrics.append(velocity - lastvel) #acceleration
+
+                        holdingvel = velocity - lastvel
+                        if abs(holdingvel) > 200:
+                            holdingvel = lastaccel
+
+
+                        metrics.append(holdingvel) #acceleration
                         metrics.append(seconds) #time
                         metrics.append(getIncrement(x,last_x,y,last_y)) #distance traveled
 
                         last_heading = cur_heading
                         cur_heading = heading(y,x, last_y, last_x)
+                        holding = abs(cur_heading - last_heading)
+                        if holding >= 45 and getIncrement(x,last_x,y,last_y) <= 2:
+                            holding = 0
+                        elif holding >= 180:
+                            holding = 360 - holding
 
-                        metrics.append(abs(cur_heading - last_heading))
-                        metrics.append(heading(y,x, last_y, last_x))
-                        metrics.append(getCardinalDirection(heading(y,x,last_y,last_x)))
+                        metrics.append(holding) # enters change in direction
+                        metrics.append(heading(y,x, last_y, last_x)) # calculates the heading in degrees
+                        metrics.append(getCardinalDirection(heading(y,x,last_y,last_x))) # calculates cardinal position
 
                         # We write the identifying and key metrics values to our csv
 
@@ -301,7 +315,7 @@ def createFile(dirName, fileName):
                         trip_id += 1
                         last_x, last_y = x, y
                         lastvel = velocity
-
+                        holdingvel = lastaccel
                         last_x_avg_vel, last_y_avg_vel = x_avg_vel, y_avg_vel
                         direction = last_heading
 
