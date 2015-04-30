@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 
 ###############################################################################
@@ -53,7 +52,7 @@ def StopCount(driver,trip):
 
 	print df[250:280][['Velocity (mph)','Change in Direction per s']]
 
-	numbers = df.loc[1:][['Velocity (mph)', 'Increment Traveled (feet)']] 
+	numbers = df.loc[2:][['Velocity (mph)', 'Increment Traveled (feet)']] 
 
 
 	val = pd.rolling_sum(numbers, window = 3)

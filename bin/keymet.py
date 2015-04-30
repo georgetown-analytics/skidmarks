@@ -32,6 +32,8 @@ from os.path import basename
 import unicodecsv as csv
 import logging as log
 import time
+import stop
+import turn
 
 
 ###############################################################################
@@ -224,7 +226,7 @@ def createFile(dirName, fileName):
                 if idx == 0:
                     trip_id = 1
 
-                    writer.writerow(['driver_id', 'trip_id', 'Velocity (mph)', 'Acceleration (mph per s)','Time (s)', 'Increment Traveled (feet)','Change in Direction per s','Direction (deg)','Direction(card)'])
+                    writer.writerow(['driver_id', 'trip_id', 'Velocity (mph)', 'Acceleration (mph per s)','Absolute Acceleration','Time (s)', 'Increment Traveled (feet)','Change in Direction per s','Direction (deg)','Direction(card)'])
 
                     if not row == { 'driver_id':'driver_id', 'trip_id':'trip_id', 'x':'x', 'y':'y'}:
 
@@ -261,6 +263,7 @@ def createFile(dirName, fileName):
                     cur_heading = 0.0
                     lastvel = 0
                     lastaccel = 0
+                    absoluteaccel = 0
 
 
                     # Creating an list to append all the calculated key metric values
@@ -287,11 +290,16 @@ def createFile(dirName, fileName):
                         metrics.append(velocity)
 
                         holdingvel = velocity - lastvel
+                        absoluteaccel = velocity - lastvel
                         if abs(holdingvel) > 200:
                             holdingvel = lastaccel
-
+                        
 
                         metrics.append(holdingvel) #acceleration
+                        if absoluteaccel < 0:
+                            absoluteaccel = abs(absoluteaccel)
+
+                        metrics.append(absoluteaccel) #absolute acceleration
                         metrics.append(seconds) #time
                         metrics.append(getIncrement(x,last_x,y,last_y)) #distance traveled
 
@@ -330,24 +338,31 @@ def createFile(dirName, fileName):
             writer = csv.writer(outfile, lineterminator = '\n')
 
             df = pd.read_csv(os.path.join(OUTPUT_DIR,fileName))
-            writer.writerow(['driver_id', 'trip_id', 'Average Velocity (mph)', 'Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement (meters)','Max Direction Change per sec', ' Direction Stdev','Time (s)'])
+            writer.writerow(['driver_id', 'trip_id', 'Average Velocity (mph)', 'Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement','Total Distance Traveled','Max Direction Change per sec', ' Direction Stdev','Time (s)', 'Turns', 'Aggressive Turns', 'Stops', 'Large Deceleration Events', 'Deceleration Events', 'Max Deceleration Event'])
             df2 = pd.read_csv(os.path.join(INPUT_DIR,str(driver),fileName))
             
             agvalues = []        
 
             agvalues.append(fileName.split('_')[0])
             agvalues.append(df.loc[1][1])
-            agvalues.append(df.loc[2:]['Velocity (mph)'].mean())
-            agvalues.append(df.loc[2:]['Velocity (mph)'].max())
-            agvalues.append(statistics.stdev(df.loc[1:]['Velocity (mph)']))
-            agvalues.append(df.loc[2:]['Acceleration (mph per s)'].mean())
-            agvalues.append(df.loc[2:]['Acceleration (mph per s)'].max())
-            agvalues.append(statistics.stdev(df.loc[1:]['Acceleration (mph per s)']))
-            displace = dotproduct(df2.loc[(len(df2)-1)]['x'],df2.loc[(len(df2)-1)]['y'])
-            agvalues.append(displace)
-            agvalues.append(df.loc[2:]['Change in Direction per s'].max())
-            agvalues.append(statistics.stdev(df.loc[2:]['Direction (deg)']))
-            agvalues.append(df.loc[1:]['Time (s)'].max())
+            agvalues.append(df.loc[2:]['Velocity (mph)'].mean()) #Average velocity
+            agvalues.append(df.loc[2:]['Velocity (mph)'].max()) #maximum velocity, excluded hyperspace jumps
+            agvalues.append(statistics.stdev(df.loc[1:]['Velocity (mph)'])) # standard deviation of velocity
+            agvalues.append(df.loc[2:]['Absolute Acceleration'].mean()) # Average Acceleration of absolute value
+            agvalues.append(df.loc[2:]['Absolute Acceleration'].max()) # Maximum value of positive and negative acceleration
+            agvalues.append(statistics.stdev(df.loc[1:]['Acceleration (mph per s)'])) # Accleration standard deviation
+            displace = dotproduct(df2.loc[(len(df2)-1)]['x'],df2.loc[(len(df2)-1)]['y'])  # Total displacement of the trip calculation, different from total distance traveled, converted to miles
+            agvalues.append(displace) # adding displacement to the csv
+            totaldist = (df.loc[2:]['Increment Traveled (feet)'].sum())  #converting feet to miles
+            agvalues.append(totaldist) # Total distance traveled in miles
+            agvalues.append(df.loc[2:]['Change in Direction per s'].max()) # maxiumum change in direction
+            agvalues.append(statistics.stdev(df.loc[2:]['Direction (deg)'])) # Standard deviation of driving direction changes 
+            agvalues.append(df.loc[1:]['Time (s)'].max()) # total driving time
+            driver = df.iloc[1]['driver_id']
+            trip= df.iloc[1]['trip_id']
+            agvalues.append(turn.TurnCount(driver,trip))
+            agvalues.append('Need to Calculate')
+            agvalues.append(stop.StopCount(driver,trip))
 
             
             writer.writerow(agvalues)

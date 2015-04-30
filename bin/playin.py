@@ -25,7 +25,7 @@ for i in numbers:
 
 
 from itertools import islice
-numbers = df.loc[1:100]['Change in Direction per s']
+numbers = df.loc[700:750]['Change in Direction per s']
 windows = []
 
 for i in numbers:

@@ -52,7 +52,7 @@ def TurnCount(driver,trip):
 
 	print df[250:280][['Velocity (mph)','Change in Direction per s']]
 
-	numbers = df.loc[1:][['Velocity (mph)', 'Change in Direction per s']] 
+	numbers = df.loc[2:][['Velocity (mph)', 'Change in Direction per s']] 
 
 
 	val = pd.rolling_sum(numbers, window = 3)

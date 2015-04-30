@@ -1,2 +1,2 @@
-driver_id,trip_id,Average Velocity (mph),Max Velocity,Velocity Stdev,Average Acceleration (mph per s),Max Acceleration (mph per s), Acceleration Stdev,Displacement (meters)Max Direction Change per sec, Direction Stdev,Time (s)
-1,20,18.058135030066804,35.733441591875746,11.962129122868232,-0.021402615424634154,13.469981845252885,1.9304377747545638,1.4133736143053852,17.944337615042823,1010
+driver_id,trip_id,Average Velocity (mph),Max Velocity,Velocity Stdev,Average Acceleration (mph per s),Max Acceleration (mph per s), Acceleration Stdev,Displacement (meters),Max Direction Change per sec, Direction Stdev,Time (s)
+1,20,18.058135030066804,35.733441591875746,11.962129122868232,1.1612918736814624,14.601406802941241,1.9304377747545638,3309.2258022081237,44.999999999967429,102.7296998472812,1010
