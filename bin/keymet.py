@@ -361,8 +361,10 @@ def createFile(dirName, fileName):
             driver = df.iloc[1]['driver_id']
             trip= df.iloc[1]['trip_id']
             agvalues.append(turn.TurnCount(driver,trip))
-            agvalues.append('Need to Calculate')
+            agvalues.append(AggressiveTurn.AggressiveTurn(driver,trip)) 
             agvalues.append(stop.StopCount(driver,trip))
+            agvalues.append(bigdecceleration.BigBraking(driver,trip))
+            agvalues.append(decceleration.Braking(driver,trip))
 
             
             writer.writerow(agvalues)
