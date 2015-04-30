@@ -44,8 +44,8 @@ INPUT_DIR   = os.path.normpath(os.path.join(os.path.dirname(path),os.path.basena
 OUTPUT_DIR  = os.path.normpath(os.path.join(os.path.dirname(path),os.path.basename(path),"output","trip"))
 OUTPUT_DIR2 = os.path.normpath(os.path.join(os.path.dirname(path),os.path.basename(path),"output","aggregate"))
 
-print "Home: %s, \nAbsolute: %s \nInput:%s \nOutput: %s." % (
-    path, INPUT_DIR, OUTPUT_DIR2, OUTPUT_DIR)
+#print "Home: %s, \nAbsolute: %s \nInput:%s \nOutput: %s." % (
+    #path, INPUT_DIR, OUTPUT_DIR2, OUTPUT_DIR)
 
 
 ###############################################################################
@@ -216,6 +216,8 @@ def createFile(dirName, fileName):
         with open(os.path.join(OUTPUT_DIR,fileName), 'wb') as outfile:
             writer = csv.writer(outfile)
 
+            
+
             # This writes the header row for our output file using trip/driver IDs from Vik's IDify.py file
             
             for idx, row in enumerate(reader):
@@ -271,7 +273,7 @@ def createFile(dirName, fileName):
 
                     for l in infile:
                     
-                        driver_id, trip_id, x, y = l.split(',') 
+                        driver_id, trip_id, x, y, = l.split(',') 
                         driver_id, trip_id, x, y = int(driver_id), int(trip_id), float(x), float(y)
                         x_avg_vel,y_avg_vel = getVelocity(x,y,last_x,last_y)
 
