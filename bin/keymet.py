@@ -258,6 +258,7 @@ def createFile(dirName, fileName):
                     last_heading = 0.0
                     cur_heading = 0.0
                     lastvel = 0
+                    lastaccel = 0
 
 
                     # Creating an list to append all the calculated key metric values
