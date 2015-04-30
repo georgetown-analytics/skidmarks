@@ -34,9 +34,10 @@ import logging as log
 import time
 import stop
 import turn
-import decceleration
-import bigdecceleration
+import deceleration
+import bigdeceleration
 import AggressiveTurn
+import maxdecel
 
 
 ###############################################################################
@@ -370,7 +371,7 @@ def createFile(dirName, fileName):
             agvalues.append(stop.StopCount(driver,trip)) # counting stops
             agvalues.append(bigdeceleration.BigBraking(driver,trip)) # counting big braking events
             agvalues.append(deceleration.Braking(driver,trip)) # counting braking events over 3 second windows
-            agvalues.append()
+            agvalues.append(maxdecel.MaxDecel(driver,trip)) # return the maximum deceleration
 
             
             writer.writerow(agvalues)
