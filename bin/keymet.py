@@ -209,7 +209,7 @@ def createFile(dirName, fileName):
     driver = getDriver(dirName)         # obtain driver id from directory name
     #df2 = pd.read_csv(os.path.join(OUTPUT_DIR,fileName))
 
-    fileName.split('_')
+    trip = fileName.split('_')[1]
 
     # This will open the driver directory/folder in a directory with all the driver files.  This should go through all 200 trip files for one driver.
     
@@ -344,6 +344,8 @@ def createFile(dirName, fileName):
             writer.writerow(['driver_id', 'trip_id', 'Average Velocity (mph)', 'Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement','Total Distance Traveled','Max Direction Change per sec', ' Direction Stdev','Time (s)', 'Turns', 'Aggressive Turns', 'Stops', 'Large Deceleration Events', 'Deceleration Events', 'Max Deceleration Event'])
             df2 = pd.read_csv(os.path.join(INPUT_DIR,str(driver),fileName))
             
+            print "Driver is", driver
+            print "Trip is", trip
             agvalues = []        
 
             agvalues.append(fileName.split('_')[0])
@@ -363,11 +365,12 @@ def createFile(dirName, fileName):
             agvalues.append(df.loc[1:]['Time (s)'].max()) # total driving time
             driver = df.iloc[1]['driver_id']
             trip= df.iloc[1]['trip_id']
-            agvalues.append(turn.TurnCount(driver,trip))
-            agvalues.append(AggressiveTurn.AggressiveTurn(driver,trip)) 
-            agvalues.append(stop.StopCount(driver,trip))
-            agvalues.append(bigdecceleration.BigBraking(driver,trip))
-            agvalues.append(decceleration.Braking(driver,trip))
+            agvalues.append(turn.TurnCount(driver,trip)) # turns
+            agvalues.append(AggressiveTurn.AggressiveTurn(driver,trip))  # aggresive turns
+            agvalues.append(stop.StopCount(driver,trip)) # counting stops
+            agvalues.append(bigdeceleration.BigBraking(driver,trip)) # counting big braking events
+            agvalues.append(deceleration.Braking(driver,trip)) # counting braking events over 3 second windows
+            agvalues.append()
 
             
             writer.writerow(agvalues)
