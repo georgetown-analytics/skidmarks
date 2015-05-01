@@ -6,7 +6,7 @@ import os
 
 def PlotTrip(driver,trip):
 
-	plt.ion()
+	
 
 	path = os.path.abspath(os.getcwd())
 	pathtocsv = os.path.normpath(os.path.join(path,"input","test",str(driver),str(trip)+".csv"))
@@ -21,8 +21,7 @@ def PlotTrip(driver,trip):
 	#plt.pause(15)
 	plt.scatter(df["x"], df['y'])
 	plt.show()
-	raw_input('hit enter to quit')
-	plt.pause(15)
+	
 
 
 

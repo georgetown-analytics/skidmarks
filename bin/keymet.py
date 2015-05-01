@@ -288,20 +288,20 @@ def createFile(dirName, fileName):
                         metrics.append(fileName.split('_')[0]) #append driver #
                         metrics.append(trip_id) #append trip id
                         velocity = tomph(dotproduct(x_avg_vel, y_avg_vel))
-                        if velocity > 200:
+                        if seconds != 0 and lastaccel > 60 and velocity > 160:
                             velocity = lastvel
 
                         metrics.append(velocity)
 
-                        holdingvel = velocity - lastvel
-                        absoluteaccel = velocity - lastvel
-                        if abs(holdingvel) > 200:
+                        holdingvel = velocity - lastvel  # accleration calcuation
+                        absoluteaccel = velocity - lastvel #holder to return the absolute value
+                        if seconds != 0 and abs(holdingvel) > 60:
                             holdingvel = lastaccel
                         
 
                         metrics.append(holdingvel) #acceleration
                         if absoluteaccel < 0:
-                            absoluteaccel = abs(absoluteaccel)
+                            absoluteaccel = abs(holdingvel)
 
                         metrics.append(absoluteaccel) #absolute acceleration
                         metrics.append(seconds) #time

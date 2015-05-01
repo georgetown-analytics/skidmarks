@@ -1,8 +1,29 @@
+
+# -*- coding: utf-8 -*-
+
+###############################################################################
+# Information
+###############################################################################
+# Created by Linwood Creekmore 
+# Input by Vikram Mittal
+
+
+# In partial fulfillment of the requirements for the Georgetown University Data Analytics Graduate Certificate Program
+
+# April 19, 2015
+
+# https://plus.google.com/+LinwoodCreekmoreIII/
+
+###############################################################################
+# Imports
+###############################################################################
+
 import os
 import csv
 
-
-
+###############################################################################
+# Main Functions
+###############################################################################
 
 #def AgTables(driver,trip)
 

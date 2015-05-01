@@ -48,7 +48,7 @@ def MaxDecel(driver,trip):
 
 	
 
-	return df['Acceleration (mph per s)'].min()
+	return df[3:]['Acceleration (mph per s)'].min()
 	 
 	
 
