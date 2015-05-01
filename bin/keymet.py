@@ -289,7 +289,7 @@ def createFile(dirName, fileName):
                         metrics.append(fileName.split('_')[0]) #append driver #
                         metrics.append(trip_id) #append trip id
                         velocity = tomph(dotproduct(x_avg_vel, y_avg_vel))
-                        if velocity > 150 and velocity == abs(holdingvel) and seconds != 0 or velocity >= 150 or lastincrement != 0:
+                        if velocity > 150 and velocity == lastaccel * -1 and seconds != 0 or velocity >= 150 or lastincrement != 0:
                             velocity = lastvel
 
                         metrics.append(velocity)
