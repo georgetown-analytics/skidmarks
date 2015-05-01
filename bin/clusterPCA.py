@@ -9,7 +9,7 @@
 # In partial fulfillment of the requirements for the Georgetown University Data Analytics Graduate Certificate Program
 
 # useful links
-# http://stackoverflow.com/questions/27504870/sklearn-kmeans-get-class-centroid-labels-and-reference-to-a-dataset
+# http://stackoverflow.com/questions/27504870/sklearn-kmeans-get-class-centroid-labels-and-reference-to-a-dataset  -> returns the class of the cluster; can see where each driver's trip fell
 
 # May 1, 2015
 
@@ -119,8 +119,13 @@ classified_data = kmeans.labels_
 #copy dataframe (may be memory intensive but just for illustration)
 skid_data = skid_data.copy()
 skid_data['Cluster Class'] = pd.Series(classified_data, index=skid_data.index)
-print skid_data[['Average Velocity (mph)', 'Cluster Class']]
+
+print skid_data
+
 print list(skid_data.columns)
+#skid_data[['Average Velocity (mph)', 'Cluster Class']].plt()
+
+
 
 
 
