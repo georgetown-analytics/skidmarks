@@ -35,6 +35,8 @@ from sklearn.preprocessing import scale
 from sklearn.preprocessing import Imputer
 from sklearn.preprocessing import StandardScaler
 import os
+from sklearn import metrics
+from sklearn.metrics import pairwise_distances
 
 
 path = path = os.path.abspath(os.getcwd())
@@ -96,16 +98,18 @@ patched = StandardScaler().fit_transform(patched)
 cluster = KMeans(n_clusters=n_clusters)
 cluster.fit(patched)
 
+
+
 # assigned grouped labels to the Skid data
-labels = cluster.labels_
-skid_data["labels"]=labels
+#labels = cluster.labels_
+#skid_data["labels"]=labels
 '''
   # Fit the model with our algorithm
 cluster = MiniBatchKMeans(n_clusters=3)
 cluster.fit(patched)
 '''
 reduced_data = PCA(n_components=2).fit_transform(patched)
-print reduced_data
+
 
 kmeans = KMeans(init='k-means++', n_clusters=n_clusters, n_init=20)
 kmeans.fit(reduced_data)
@@ -113,22 +117,28 @@ kmeans.fit(reduced_data)
 # Make Predictions
 predictions = cluster.predict(patched)
 
+# Silhouette Coefficient
+testmetric = kmeans.labels_
+SilouetteCoefficient = metrics.silhouette_score(patched, testmetric, metric='euclidean')
+
+print "The Silouette Coefficient score is", SilouetteCoefficient
+
 # array of indexes corresponding to classes around centroids, in the order of your dataset
 classified_data = kmeans.labels_
 prediction_data = cluster.labels_
 
 #copy dataframe (may be memory intensive but just for illustration)
 skid_data = skid_data.copy()
-print pd.Series(classified_data)
-print pd.Series(prediction_data)
-skid_data['Cluster Class'] = pd.Series(classified_data, index=skid_data.index)
+#print pd.Series(classified_data)
+#print pd.Series(prediction_data)
+skid_data['Predicted Class'] = pd.Series(prediction_data, index=skid_data.index)
 #print skid_data.describe()
-#print skid_data
+print cluster.labels_
 
 #print list(skid_data.columns)
 
 
-skid_data.plot( x = 'Average Acceleration (mph per s)', y = 'Cluster Class', kind = 'scatter')
+skid_data.plot( x = 'Average Acceleration (mph per s)', y = 'Predicted Class', kind = 'scatter')
 #plt.show()
 
 
