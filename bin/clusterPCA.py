@@ -139,7 +139,7 @@ skid_data['Predicted Class'] = pd.Series(prediction_data, index=skid_data.index)
 print cluster.labels_
 #print list(skid_data.columns)
 skid_data.plot( x = 'Average Acceleration (mph per s)', y = 'Predicted Class', kind = 'scatter')
-#plt.show()
+plt.show()
 
 
 # Scoring to evaluate cluster performance
@@ -213,8 +213,8 @@ plt.xlim(x_min, x_max)
 plt.ylim(y_min, y_max)
 plt.xticks(())
 plt.yticks(())
-#plt.savefig('5clusterPCA.png', orientation = 'landscape')
-#plt.show()
+plt.savefig('5clusterPCA.png', orientation = 'landscape')
+plt.show()
 figsavepath = os.path.normpath(os.path.join(path,'figures',str(n_clusters)+"_cluster_KMeans_PCAReduced"+ ".png"))
 
 
