@@ -19,10 +19,11 @@
 
 print(__doc__)
 
-from time import time
+import os
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
+from time import time
+import matplotlib.pyplot as plt
 from sklearn import preprocessing
 from sklearn import metrics
 from sklearn.cluster import KMeans
@@ -30,7 +31,9 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import scale
 from sklearn.preprocessing import Imputer
 from sklearn.preprocessing import StandardScaler
-import os
+from sklearn.cross_validation import train_test_split
+
+
 
 ###############################################################################
 # File Paths
@@ -52,7 +55,7 @@ n_clusters=5
 
 n_samples, n_features = skid_data.shape
 n_digits = (len(as_array))
-print n_digits
+
 
 #Correct missing data 
 
@@ -61,6 +64,8 @@ print n_digits
 
 imputer = Imputer(missing_values="NaN", strategy="mean")
 patched = imputer.fit_transform(as_array)
+
+cluster = KMeans(init='k-means++', n_clusters=n_clusters, n_init=20)
 
 #patched = StandardScaler().fit_transform(patched)
 #patched = scale(patched, axis=0, with_mean=True)
@@ -71,6 +76,8 @@ patched_normalized = preprocessing.normalize(patched, norm='l2')
 #patched_minmax = min_max_scaler.fit_transform(patched)
 
 sample_size = len(skid_data)
+
+labels = cluster.predict(patched_normalized)
 
 print("n_clusters: %d, \t n_samples %d, \t n_features %d"
       % (n_clusters, n_samples, n_features))
@@ -83,14 +90,14 @@ print('% 9s' % 'init'
 
 def bench_k_means(estimator, name, data):
     t0 = time()
-    estimator.fit(data)
+    estimator.fit(patched_normalized)
     print('% 9s   %.2fs    %i   %.3f '
           % (name, (time() - t0), estimator.inertia_,
-             #metrics.homogeneity_score(labels, estimator.labels_),
-             #metrics.completeness_score(labels, estimator.labels_),
-             #metrics.v_measure_score(labels, estimator.labels_),
-             #metrics.adjusted_rand_score(labels, estimator.labels_),
-             #metrics.adjusted_mutual_info_score(labels,  estimator.labels_),
+             metrics.homogeneity_score(labels, estimator.labels_),
+             metrics.completeness_score(labels, estimator.labels_),
+             metrics.v_measure_score(labels, estimator.labels_),
+             metrics.adjusted_rand_score(labels, estimator.labels_),
+             metrics.adjusted_mutual_info_score(labels,  estimator.labels_),
              metrics.silhouette_score(data, estimator.labels_,
                                       metric='euclidean',
                                       sample_size=sample_size)))
@@ -98,7 +105,7 @@ def bench_k_means(estimator, name, data):
 bench_k_means(KMeans(init='k-means++', n_clusters=n_clusters, n_init=10),
               name="k-means++", data=patched_normalized)
 
-bench_k_means(KMeans(init='random', n_clusters=n_digits, n_init=10),
+bench_k_means(KMeans(init='random', n_clusters=n_clusters, n_init=10),
               name="random", data=patched_normalized)
 
 # in this case the seeding of the centers is deterministic, hence we run the
@@ -113,7 +120,7 @@ print(79 * '_')
 # Visualize the results on PCA-reduced data
 
 reduced_data = PCA(n_components=2).fit_transform(patched_normalized)
-kmeans = KMeans(init='k-means++', n_clusters=n_digits, n_init=10)
+kmeans = KMeans(init='k-means++', n_clusters=n_clusters, n_init=10)
 kmeans.fit(reduced_data)
 
 # Step size of the mesh. Decrease to increase the quality of the VQ.
