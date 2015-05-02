@@ -90,10 +90,10 @@ imputer = Imputer(missing_values="NaN", strategy="mean")
 patched = imputer.fit_transform(as_array)
 
 # Preprocessing tricks
-#patched = StandardScaler().fit_transform(patched)
+patched = StandardScaler().fit_transform(patched)
 #patched = scale(patched, axis=0, with_mean=True)
 
-patched_normalized = preprocessing.normalize(patched, norm='l2')
+#patched_normalized = preprocessing.normalize(patched, norm='l2')
 
 #min_max_scaler = preprocessing.MinMaxScaler()
 #patched_minmax = min_max_scaler.fit_transform(patched)
@@ -119,16 +119,17 @@ reduced_data = PCA(n_components=2).fit_transform(patched)
 
 
 kmeans = KMeans(init='k-means++', n_clusters=n_clusters, n_init=20)
-kmeans.fit(reduced_data)
+fit = kmeans.fit(reduced_data)
+predict = kmeans.predict(reduced_data)
 
 # Make Predictions
-predictions = cluster.predict(patched)
+labels = cluster.predict(patched)
 
 
 
 # array of indexes corresponding to classes around centroids, in the order of your dataset
 classified_data = kmeans.labels_
-prediction_data = cluster.labels_
+prediction_data = labels
 
 #copy dataframe (may be memory intensive but just for illustration)
 skid_data = skid_data.copy()
@@ -146,7 +147,7 @@ plt.show()
 
 # Silhouette Coefficient
 print "We want scores close to 1 \n"
-
+'''
 SilouetteCoefficient = metrics.silhouette_score(patched, classified_data, metric='euclidean')
 AdjustRandIndex = metrics.adjusted_rand_score(classified_data, prediction_data)
 MutualInfoScore = metrics.adjusted_mutual_info_score(classified_data,prediction_data)
@@ -156,28 +157,8 @@ V_measure = metrics.v_measure_score(classified_data, prediction_data)
 
 
 print "The Silouette Coefficient score is %r\nThe Adjusted Rand index is %r\nThe Mutual Information based score is %r\nThe Homogeneity score is %r\nThe completeness score is %r\nThe V-measure score is %r" % (SilouetteCoefficient,AdjustRandIndex,MutualInfoScore,HomogenietyScore,CompletenessScore,V_measure)
-
-
-
-
 '''
-#Ben Bengfort Visualization
 
-# Find centers
-centers = cluster.cluster_centers_
-center_colors = colors[:len(centers)]
-plt.scatter(centers[:, 0], centers[:, 1], s=100, c=center_colors)
-
-#plt.subplot(1,4,idx+1)
-plt.scatter(patched[:, 0], patched[:, 1], color=colors[predictions].tolist(), s=10)
-
-plt.xticks(())
-plt.yticks(())
-plt.ylabel('Some random values')
-plt.xlabel('Some random units')
-
-plt.show()
-'''
 #############
 #scikit-learn visualization example
 
@@ -213,8 +194,8 @@ plt.xlim(x_min, x_max)
 plt.ylim(y_min, y_max)
 plt.xticks(())
 plt.yticks(())
-plt.savefig('5clusterPCA.png', orientation = 'landscape')
+#plt.savefig('5clusterPCA.png', orientation = 'landscape')
 plt.show()
-figsavepath = os.path.normpath(os.path.join(path,'figures',str(n_clusters)+"_cluster_KMeans_PCAReduced"+ ".png"))
+#figsavepath = os.path.normpath(os.path.join(path,'figures',str(n_clusters)+"_cluster_KMeans_PCAReduced"+ ".png"))
 
 
