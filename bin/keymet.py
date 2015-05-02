@@ -268,6 +268,7 @@ def createFile(dirName, fileName):
                     lastvel = 0
                     lastaccel = 0
                     absoluteaccel = 0
+                    lastincrement = 0
 
 
                     # Creating an list to append all the calculated key metric values
@@ -288,24 +289,29 @@ def createFile(dirName, fileName):
                         metrics.append(fileName.split('_')[0]) #append driver #
                         metrics.append(trip_id) #append trip id
                         velocity = tomph(dotproduct(x_avg_vel, y_avg_vel))
-                        if seconds != 0 and lastaccel > 60 and velocity > 160:
+                        if velocity > 150 and velocity == lastaccel * -1 and seconds != 0 or velocity >= 150 or lastincrement != 0:
                             velocity = lastvel
 
                         metrics.append(velocity)
 
-                        holdingvel = velocity - lastvel  # accleration calcuation
-                        absoluteaccel = velocity - lastvel #holder to return the absolute value
-                        if seconds != 0 and abs(holdingvel) > 60:
+                        holdingvel = velocity - lastvel
+                        absoluteaccel = velocity - lastvel
+                        if holdingvel * -1 > 40 and seconds != 0 or holdingvel * -1 > 150 and velocity == holdingvel * -1 and seconds != 0:
                             holdingvel = lastaccel
                         
 
                         metrics.append(holdingvel) #acceleration
                         if absoluteaccel < 0:
-                            absoluteaccel = abs(holdingvel)
+                            absoluteaccel = abs(absoluteaccel)
 
                         metrics.append(absoluteaccel) #absolute acceleration
                         metrics.append(seconds) #time
-                        metrics.append(getIncrement(x,last_x,y,last_y)) #distance traveled
+                        
+                        #calculating the increment and testing
+                        current_increment = getIncrement(x,last_x,y,last_y)
+                        if lastincrement != 0 and current_increment / lastincrement > 2:
+                            current_increment = lastincrement
+                        metrics.append(current_increment) #distance traveled
 
                         last_heading = cur_heading
                         cur_heading = heading(y,x, last_y, last_x)
@@ -333,6 +339,7 @@ def createFile(dirName, fileName):
                         holdingvel = lastaccel
                         last_x_avg_vel, last_y_avg_vel = x_avg_vel, y_avg_vel
                         direction = last_heading
+                        current_increment = lastincrement
 
     
     with open(os.path.join(OUTPUT_DIR, fileName), 'rU') as infile:
