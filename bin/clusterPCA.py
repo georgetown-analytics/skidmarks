@@ -115,21 +115,21 @@ predictions = cluster.predict(patched)
 
 # array of indexes corresponding to classes around centroids, in the order of your dataset
 classified_data = kmeans.labels_
+prediction_data = cluster.labels_
 
 #copy dataframe (may be memory intensive but just for illustration)
 skid_data = skid_data.copy()
-print pd.Series(classified_data).mode()
+print pd.Series(classified_data)
+print pd.Series(prediction_data)
 skid_data['Cluster Class'] = pd.Series(classified_data, index=skid_data.index)
-print skid_data.describe()
+#print skid_data.describe()
 #print skid_data
 
 #print list(skid_data.columns)
 
-#snippet = skid_data.loc[skid_data['trip_id'] == 1]
-#ax = skid_data[skid_data.loc[skid_data['trip_id'] == 10]].plot()
 
 skid_data.plot( x = 'Average Acceleration (mph per s)', y = 'Cluster Class', kind = 'scatter')
-plt.show()
+#plt.show()
 
 
 
@@ -191,7 +191,7 @@ plt.ylim(y_min, y_max)
 plt.xticks(())
 plt.yticks(())
 #plt.savefig('5clusterPCA.png', orientation = 'landscape')
-plt.show()
+#plt.show()
 figsavepath = os.path.normpath(os.path.join(path,'figures',str(n_clusters)+"_cluster_KMeans_PCAReduced"+ ".png"))
 
 
