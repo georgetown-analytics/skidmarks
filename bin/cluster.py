@@ -11,54 +11,38 @@ from sklearn.datasets import load_digits
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import scale
 from sklearn.preprocessing import Imputer
+from sklearn import preprocessing
 
 # Some colors for later
 colors = np.array([x for x in 'bgrcmykbgrcmykbgrcmykbgrcmyk'])
 colors = np.hstack([colors] * 20)
-'''
-df = pd.read_csv('./lin.csv')
-
-digits = np.asfarray(df[['driver_id', 'trip_id', 'Average Velocity (mph)', 'Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement','Total Distance Traveled','Max Direction Change per sec', ' Direction Stdev','Time (s)', 'Turns', 'Aggressive Turns', 'Stops', 'Large Deceleration Events', 'Deceleration Events', 'Max Deceleration Event']])
-data = scale(digits.data)
-
-
-
-#####
-from sklearn.cluster import MiniBatchKMeans
-import matplotlib.pyplot as plt
-
-fig, axe = plt.subplots(figsize=(18, 4))
-for idx, dataset in enumerate((circles, moons, blobs, noise)):
-    X, y = dataset
-    X = StandardScaler().fit_transform(X)
-    
-'''  
-
 
 ###
  #load data from a CSV to a dataframe
 with open("./lin.csv") as in_data:
-    crime_data = pd.DataFrame.from_csv(in_data, sep=',')
+    skid_data = pd.DataFrame.from_csv(in_data, sep=',')
 
-#crime_data=crime_data.fillna(value=-999)
+#skid_data=skid_data.fillna(value=-999)
 
 #load all numeric data into an array. The offense column from the crime data
 #is excluded
-as_array = np.asfarray(crime_data[['Average Velocity (mph)','Turns']]) #'Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement','Total Distance Traveled','Max Direction Change per sec', ' Direction Stdev','Time (s)', 'Turns', 'Aggressive Turns', 'Stops', 'Large Deceleration Events', 'Deceleration Events', 'Max Deceleration Event']]])
+as_array = np.asfarray(skid_data[['Average Velocity (mph)','Turns','Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement','Total Distance Traveled','Max Direction Change per sec', ' Direction Stdev','Time (s)', 'Turns', 'Aggressive Turns', 'Stops', 'Large Deceleration Events', 'Deceleration Events', 'Max Deceleration Event']])
 
 #number of groups
-n_clusters=5
+n_clusters=4
+
+# Preprocessing tricks
 
 imputer = Imputer(missing_values="NaN", strategy="mean")
 patched = imputer.fit_transform(as_array)
+#min_max_scaler = preprocessing.MinMaxScaler()
+#patched = min_max_scaler.fit_transform(patched)
+#patched = preprocessing.normalize(patched, norm='l2') 
 
-print patched
+#patched = preprocessing.Binarizer().fit(patched)
+#patched = binarizer.transform(as_array)
+#patched = scaler.transform(as_array)
 
-
-
-#Correct missing data 
-#imputer = Imputer(missing_values=-999, strategy="mean")
-#patched = imputer.fit_transform(as_array)
 
 #cluster data 
 cluster = KMeans(n_clusters=n_clusters)
@@ -66,9 +50,9 @@ cluster.fit(patched)
 
 #assigned grouped labels to the crime data
 labels = cluster.labels_
-crime_data["labels"]=labels
+skid_data["labels"]=labels
 
-#pdict = create_ordered_dict(crime_data, "labels")
+
 '''
   # Fit the model with our algorithm
 model = MiniBatchKMeans(n_clusters=3)
@@ -76,6 +60,10 @@ model.fit(as)
 '''
 # Make Predictions
 predictions = cluster.predict(patched)
+
+SilouetteCoefficient = metrics.silhouette_score(patched, labels, metric='euclidean')
+
+print "The Silouette Coefficient score is", SilouetteCoefficient
 
 # Find centers
 centers = cluster.cluster_centers_
@@ -87,7 +75,7 @@ plt.scatter(patched[:, 0], patched[:, 1], color=colors[predictions].tolist(), s=
 
 plt.xticks(())
 plt.yticks(())
-plt.ylabel('$x_1$')
-plt.xlabel('$x_0$')
+plt.ylabel('$Feature A$')
+plt.xlabel('$Feature B$')
 
 plt.show()

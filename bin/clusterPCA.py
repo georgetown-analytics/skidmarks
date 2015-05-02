@@ -34,11 +34,9 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import scale
 from sklearn.preprocessing import Imputer
 from sklearn.preprocessing import StandardScaler
-from sklearn import preprocessing
 import os
 from sklearn import metrics
 from sklearn.metrics import pairwise_distances
-from sklearn.metrics.cluster import v_measure_score
 
 
 path = path = os.path.abspath(os.getcwd())
@@ -49,16 +47,11 @@ colors = np.hstack([colors] * 20)
 
 '''
 df = pd.read_csv('./lin.csv')
-
 digits = np.asfarray(df[['driver_id', 'trip_id', 'Average Velocity (mph)', 'Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement','Total Distance Traveled','Max Direction Change per sec', ' Direction Stdev','Time (s)', 'Turns', 'Aggressive Turns', 'Stops', 'Large Deceleration Events', 'Deceleration Events', 'Max Deceleration Event']])
 data = scale(digits.data)
-
-
-
 #####
 from sklearn.cluster import MiniBatchKMeans
 import matplotlib.pyplot as plt
-
 fig, axe = plt.subplots(figsize=(18, 4))
 for idx, dataset in enumerate((circles, moons, blobs, noise)):
     X, y = dataset
@@ -90,13 +83,8 @@ imputer = Imputer(missing_values="NaN", strategy="mean")
 patched = imputer.fit_transform(as_array)
 
 # Preprocessing tricks
-#patched = StandardScaler().fit_transform(patched)
+patched = StandardScaler().fit_transform(patched)
 #patched = scale(patched, axis=0, with_mean=True)
-
-patched_normalized = preprocessing.normalize(patched, norm='l2')
-
-#min_max_scaler = preprocessing.MinMaxScaler()
-#patched_minmax = min_max_scaler.fit_transform(patched)
 
 
 
@@ -124,7 +112,11 @@ kmeans.fit(reduced_data)
 # Make Predictions
 predictions = cluster.predict(patched)
 
+# Silhouette Coefficient
+testmetric = kmeans.labels_
+SilouetteCoefficient = metrics.silhouette_score(patched, testmetric, metric='euclidean')
 
+print "The Silouette Coefficient score is", SilouetteCoefficient
 
 # array of indexes corresponding to classes around centroids, in the order of your dataset
 classified_data = kmeans.labels_
@@ -137,45 +129,31 @@ skid_data = skid_data.copy()
 skid_data['Predicted Class'] = pd.Series(prediction_data, index=skid_data.index)
 #print skid_data.describe()
 print cluster.labels_
+
 #print list(skid_data.columns)
+
+
 skid_data.plot( x = 'Average Acceleration (mph per s)', y = 'Predicted Class', kind = 'scatter')
-plt.show()
+#plt.show()
 
 
-# Scoring to evaluate cluster performance
 
-# Silhouette Coefficient
-print "We want scores close to 1 \n"
-
-SilouetteCoefficient = metrics.silhouette_score(patched, classified_data, metric='euclidean')
-AdjustRandIndex = metrics.adjusted_rand_score(classified_data, prediction_data)
-MutualInfoScore = metrics.adjusted_mutual_info_score(classified_data,prediction_data)
-HomogenietyScore = metrics.homogeneity_score(classified_data, prediction_data) 
-CompletenessScore = metrics.completeness_score(classified_data, prediction_data)
-V_measure = metrics.v_measure_score(classified_data, prediction_data) 
-
-
-print "The Silouette Coefficient score is %r\nThe Adjusted Rand index is %r\nThe Mutual Information based score is %r\nThe Homogeneity score is %r\nThe completeness score is %r\nThe V-measure score is %r" % (SilouetteCoefficient,AdjustRandIndex,MutualInfoScore,HomogenietyScore,CompletenessScore,V_measure)
 
 
 
 
 '''
 #Ben Bengfort Visualization
-
 # Find centers
 centers = cluster.cluster_centers_
 center_colors = colors[:len(centers)]
 plt.scatter(centers[:, 0], centers[:, 1], s=100, c=center_colors)
-
 #plt.subplot(1,4,idx+1)
 plt.scatter(patched[:, 0], patched[:, 1], color=colors[predictions].tolist(), s=10)
-
 plt.xticks(())
 plt.yticks(())
 plt.ylabel('Some random values')
 plt.xlabel('Some random units')
-
 plt.show()
 '''
 #############
@@ -213,8 +191,6 @@ plt.xlim(x_min, x_max)
 plt.ylim(y_min, y_max)
 plt.xticks(())
 plt.yticks(())
-plt.savefig('5clusterPCA.png', orientation = 'landscape')
+#plt.savefig('5clusterPCA.png', orientation = 'landscape')
 plt.show()
 figsavepath = os.path.normpath(os.path.join(path,'figures',str(n_clusters)+"_cluster_KMeans_PCAReduced"+ ".png"))
-
-
