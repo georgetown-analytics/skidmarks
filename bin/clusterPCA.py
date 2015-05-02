@@ -34,9 +34,11 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import scale
 from sklearn.preprocessing import Imputer
 from sklearn.preprocessing import StandardScaler
+from sklearn import preprocessing
 import os
 from sklearn import metrics
 from sklearn.metrics import pairwise_distances
+from sklearn.metrics.cluster import v_measure_score
 
 
 path = path = os.path.abspath(os.getcwd())
@@ -88,8 +90,13 @@ imputer = Imputer(missing_values="NaN", strategy="mean")
 patched = imputer.fit_transform(as_array)
 
 # Preprocessing tricks
-patched = StandardScaler().fit_transform(patched)
+#patched = StandardScaler().fit_transform(patched)
 #patched = scale(patched, axis=0, with_mean=True)
+
+patched_normalized = preprocessing.normalize(patched, norm='l2')
+
+#min_max_scaler = preprocessing.MinMaxScaler()
+#patched_minmax = min_max_scaler.fit_transform(patched)
 
 
 
@@ -117,11 +124,7 @@ kmeans.fit(reduced_data)
 # Make Predictions
 predictions = cluster.predict(patched)
 
-# Silhouette Coefficient
-testmetric = kmeans.labels_
-SilouetteCoefficient = metrics.silhouette_score(patched, testmetric, metric='euclidean')
 
-print "The Silouette Coefficient score is", SilouetteCoefficient
 
 # array of indexes corresponding to classes around centroids, in the order of your dataset
 classified_data = kmeans.labels_
@@ -134,15 +137,25 @@ skid_data = skid_data.copy()
 skid_data['Predicted Class'] = pd.Series(prediction_data, index=skid_data.index)
 #print skid_data.describe()
 print cluster.labels_
-
 #print list(skid_data.columns)
-
-
 skid_data.plot( x = 'Average Acceleration (mph per s)', y = 'Predicted Class', kind = 'scatter')
 #plt.show()
 
 
+# Scoring to evaluate cluster performance
 
+# Silhouette Coefficient
+print "We want scores close to 1 \n"
+
+SilouetteCoefficient = metrics.silhouette_score(patched, classified_data, metric='euclidean')
+AdjustRandIndex = metrics.adjusted_rand_score(classified_data, prediction_data)
+MutualInfoScore = metrics.adjusted_mutual_info_score(classified_data,prediction_data)
+HomogenietyScore = metrics.homogeneity_score(classified_data, prediction_data) 
+CompletenessScore = metrics.completeness_score(classified_data, prediction_data)
+V_measure = metrics.v_measure_score(classified_data, prediction_data) 
+
+
+print "The Silouette Coefficient score is %r\nThe Adjusted Rand index is %r\nThe Mutual Information based score is %r\nThe Homogeneity score is %r\nThe completeness score is %r\nThe V-measure score is %r" % (SilouetteCoefficient,AdjustRandIndex,MutualInfoScore,HomogenietyScore,CompletenessScore,V_measure)
 
 
 
