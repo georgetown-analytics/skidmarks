@@ -82,7 +82,7 @@ print skid_data.shape
 as_array = np.asfarray(skid_data[['Average Velocity (mph)','Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement','Total Distance Traveled','Max Direction Change per sec', ' Direction Stdev','Time (s)', 'Turns', 'Aggressive Turns', 'Stops', 'Large Deceleration Events', 'Deceleration Events', 'Max Deceleration Event']])
 
 #number of groups
-n_clusters=4
+n_clusters=3
 
 
 #Correct missing data 
@@ -90,13 +90,13 @@ imputer = Imputer(missing_values="NaN", strategy="mean")
 patched = imputer.fit_transform(as_array)
 
 # Preprocessing tricks
-patched = StandardScaler().fit_transform(patched)
+#patched = StandardScaler().fit_transform(patched)
 #patched = scale(patched, axis=0, with_mean=True)
 
-#patched_normalized = preprocessing.normalize(patched, norm='l2')
+#patched = preprocessing.normalize(patched, norm='l2')
 
-#min_max_scaler = preprocessing.MinMaxScaler()
-#patched_minmax = min_max_scaler.fit_transform(patched)
+min_max_scaler = preprocessing.MinMaxScaler()
+patched = min_max_scaler.fit_transform(patched)
 
 
 
@@ -104,7 +104,7 @@ patched = StandardScaler().fit_transform(patched)
 #cluster data 
 cluster = KMeans(n_clusters=n_clusters)
 cluster.fit(patched)
-
+cluspredict = cluster.predict(patched)
 
 
 # assigned grouped labels to the Skid data
@@ -121,34 +121,41 @@ reduced_data = PCA(n_components=2).fit_transform(patched)
 kmeans = KMeans(init='k-means++', n_clusters=n_clusters, n_init=20)
 fit = kmeans.fit(reduced_data)
 predict = kmeans.predict(reduced_data)
+fit_predict = kmeans.fit_predict(reduced_data)
+fit_trans = kmeans.fit_transform(reduced_data)
 
-# Make Predictions
-labels = cluster.predict(patched)
+print fit, predict, fit_predict, fit_trans
+
 
 
 
 # array of indexes corresponding to classes around centroids, in the order of your dataset
 classified_data = kmeans.labels_
-prediction_data = labels
 
 #copy dataframe (may be memory intensive but just for illustration)
 skid_data = skid_data.copy()
 #print pd.Series(classified_data)
 #print pd.Series(prediction_data)
-skid_data['Predicted Class'] = pd.Series(prediction_data, index=skid_data.index)
-#print skid_data.describe()
-print cluster.labels_
+skid_data['Cluster Class'] = pd.Series(classified_data, index=skid_data.index)
+print skid_data.describe()
+print skid_data
 #print list(skid_data.columns)
-skid_data.plot( x = 'Average Acceleration (mph per s)', y = 'Predicted Class', kind = 'scatter')
+skid_data.plot( x = 'Displacement', y = 'Cluster Class', kind = 'scatter')
 plt.show()
 
+#pd.Series.to_csv(os.path.normpath(os.path.join(path,"Kmeansclass.csv")), sep=', ', na_rep='', header=True, index=True, mode='w')
 
+#print os.path.normpath(os.path.join(path,"Kmeansclass.csv"))
 # Scoring to evaluate cluster performance
 
 # Silhouette Coefficient
 print "We want scores close to 1 \n"
-'''
+
 SilouetteCoefficient = metrics.silhouette_score(patched, classified_data, metric='euclidean')
+
+print "The Silhouette Coefficient score is \n>", SilouetteCoefficient
+
+'''
 AdjustRandIndex = metrics.adjusted_rand_score(classified_data, prediction_data)
 MutualInfoScore = metrics.adjusted_mutual_info_score(classified_data,prediction_data)
 HomogenietyScore = metrics.homogeneity_score(classified_data, prediction_data) 
