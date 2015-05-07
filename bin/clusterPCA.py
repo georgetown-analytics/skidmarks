@@ -93,10 +93,10 @@ patched = imputer.fit_transform(as_array)
 #patched = StandardScaler().fit_transform(patched)
 #patched = scale(patched, axis=0, with_mean=True)
 
-#patched = preprocessing.normalize(patched, norm='l2')
+patched = preprocessing.normalize(patched, norm='l2')
 
-min_max_scaler = preprocessing.MinMaxScaler()
-patched = min_max_scaler.fit_transform(patched)
+#min_max_scaler = preprocessing.MinMaxScaler()
+#patched = min_max_scaler.fit_transform(patched)
 
 
 

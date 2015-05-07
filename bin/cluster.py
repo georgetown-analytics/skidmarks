@@ -17,6 +17,7 @@ from sklearn import preprocessing
 from sklearn import linear_model
 import statsmodels.api as sm
 from statsmodels.sandbox.regression.predstd import wls_prediction_std
+from sklearn import preprocessing
 
 
 # Some colors for later
@@ -32,6 +33,7 @@ with open("./lin.csv") as in_data:
 
 #load all numeric data into an array. The offense column from the crime data
 #is excluded
+<<<<<<< HEAD
 
 as_array = np.asfarray(skid_data[['Average Velocity (mph)','Turns','Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement','Total Distance Traveled','Max Direction Change per sec', ' Direction Stdev','Time (s)', 'Turns', 'Aggressive Turns', 'Stops', 'Large Deceleration Events', 'Deceleration Events', 'Max Deceleration Event']])
 
@@ -42,16 +44,36 @@ as_array = np.asfarray(skid_data[['Average Velocity (mph)','Turns','Max Velocity
 n_clusters=4
 
 # Preprocessing tricks
+=======
+as_array = np.asfarray(crime_data[['Velocity Stdev','Aggressive Turns']])#'Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement','Total Distance Traveled','Max Direction Change per sec', ' Direction Stdev','Time (s)', 'Turns', 'Aggressive Turns', 'Stops', 'Large Deceleration Events', 'Deceleration Events', 'Max Deceleration Event']])
 
+#number of groups
+n_clusters=4
+>>>>>>> master
+
+#Correct missing data 
 imputer = Imputer(missing_values="NaN", strategy="mean")
 patched = imputer.fit_transform(as_array)
 #min_max_scaler = preprocessing.MinMaxScaler()
 #patched = min_max_scaler.fit_transform(patched)
 #patched = preprocessing.normalize(patched, norm='l2') 
 
+<<<<<<< HEAD
 #patched = preprocessing.Binarizer().fit(patched)
 #patched = binarizer.transform(as_array)
 #patched = scaler.transform(as_array)
+=======
+# Preprocessing tricks
+#patched = StandardScaler().fit_transform(patched)
+#patched = scale(patched, axis=0, with_mean=True)
+
+patched = preprocessing.normalize(patched, norm='l2')
+
+#min_max_scaler = preprocessing.MinMaxScaler()
+#patched = min_max_scaler.fit_transform(patched)
+
+
+>>>>>>> master
 
 
 #cluster data 
@@ -66,11 +88,24 @@ skid_data["labels"]=labels
 
 
 
+<<<<<<< HEAD
 '''
   # Fit the model with our algorithm
 model = MiniBatchKMeans(n_clusters=3)
 model.fit(as)
 '''
+=======
+#copy dataframe (may be memory intensive but just for illustration)
+skid_data = crime_data.copy()
+#print pd.Series(classified_data)
+#print pd.Series(prediction_data)
+skid_data['Cluster Class'] = pd.Series(labels, index=skid_data.index)
+print skid_data.describe()
+print skid_data
+#print list(skid_data.columns)
+skid_data.plot( x = 'Aggressive Turns', y = 'Cluster Class', kind = 'scatter')
+plt.show()
+>>>>>>> master
 # Make Predictions
 predictions = cluster.predict(patched)
 
