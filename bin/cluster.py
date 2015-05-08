@@ -19,25 +19,6 @@ from sklearn import preprocessing
 # Some colors for later
 colors = np.array([x for x in 'bgrcmykbgrcmykbgrcmykbgrcmyk'])
 colors = np.hstack([colors] * 20)
-'''
-df = pd.read_csv('./lin.csv')
-
-digits = np.asfarray(df[['driver_id', 'trip_id', 'Average Velocity (mph)', 'Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement','Total Distance Traveled','Max Direction Change per sec', ' Direction Stdev','Time (s)', 'Turns', 'Aggressive Turns', 'Stops', 'Large Deceleration Events', 'Deceleration Events', 'Max Deceleration Event']])
-data = scale(digits.data)
-
-
-
-#####
-from sklearn.cluster import MiniBatchKMeans
-import matplotlib.pyplot as plt
-
-fig, axe = plt.subplots(figsize=(18, 4))
-for idx, dataset in enumerate((circles, moons, blobs, noise)):
-    X, y = dataset
-    X = StandardScaler().fit_transform(X)
-    
-'''  
-
 
 ###
  #load data from a CSV to a dataframe
@@ -48,7 +29,7 @@ with open("./lin.csv") as in_data:
 
 #load all numeric data into an array. The offense column from the crime data
 #is excluded
-as_array = np.asfarray(crime_data[['Velocity Stdev','Aggressive Turns']])#'Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement','Total Distance Traveled','Max Direction Change per sec', ' Direction Stdev','Time (s)', 'Turns', 'Aggressive Turns', 'Stops', 'Large Deceleration Events', 'Deceleration Events', 'Max Deceleration Event']])
+as_array = np.asfarray(crime_data[['Average Velocity (mph)','Aggressive Turns']])#'Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement','Total Distance Traveled','Max Direction Change per sec', ' Direction Stdev','Time (s)', 'Turns', 'Aggressive Turns', 'Stops', 'Large Deceleration Events', 'Deceleration Events', 'Max Deceleration Event']])
 
 #number of groups
 n_clusters=4
@@ -67,14 +48,11 @@ patched = preprocessing.normalize(patched, norm='l2')
 #patched = min_max_scaler.fit_transform(patched)
 
 
-
-#Correct missing data 
-#imputer = Imputer(missing_values=-999, strategy="mean")
-#patched = imputer.fit_transform(as_array)
-
 #cluster data 
 cluster = KMeans(n_clusters=n_clusters)
-cluster.fit(patched)
+cluster.fit_transform(patched)
+
+
 
 #assigned grouped labels to the crime data
 labels = cluster.labels_

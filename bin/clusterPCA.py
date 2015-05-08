@@ -82,7 +82,7 @@ print skid_data.shape
 as_array = np.asfarray(skid_data[['Average Velocity (mph)','Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement','Total Distance Traveled','Max Direction Change per sec', ' Direction Stdev','Time (s)', 'Turns', 'Aggressive Turns', 'Stops', 'Large Deceleration Events', 'Deceleration Events', 'Max Deceleration Event']])
 
 #number of groups
-n_clusters=3
+n_clusters=4
 
 
 #Correct missing data 
@@ -110,21 +110,17 @@ cluspredict = cluster.predict(patched)
 # assigned grouped labels to the Skid data
 #labels = cluster.labels_
 #skid_data["labels"]=labels
-'''
-  # Fit the model with our algorithm
-cluster = MiniBatchKMeans(n_clusters=3)
-cluster.fit(patched)
-'''
+
 reduced_data = PCA(n_components=2).fit_transform(patched)
 
 
 kmeans = KMeans(init='k-means++', n_clusters=n_clusters, n_init=20)
 fit = kmeans.fit(reduced_data)
-predict = kmeans.predict(reduced_data)
-fit_predict = kmeans.fit_predict(reduced_data)
-fit_trans = kmeans.fit_transform(reduced_data)
+#predict = kmeans.predict(reduced_data)
+#fit_predict = kmeans.fit_predict(reduced_data)
+#fit_trans = kmeans.fit_transform(reduced_data)
 
-print fit, predict, fit_predict, fit_trans
+#print fit, predict, fit_predict, fit_trans
 
 
 

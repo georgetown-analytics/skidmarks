@@ -48,8 +48,9 @@ with open(os.path.normpath(os.path.join(path,'lin.csv'))) as in_data:
 ###############################################################################
 # Load Data and Prep for scikit-learn
 ###############################################################################
-
-as_array = np.asfarray(skid_data[['Average Velocity (mph)','Turns']])
+train = len(skid_data) * .60
+test = int(train + 1)
+as_array = np.asfarray(skid_data[:int(train)][['Deceleration Events','Max Acceleration (mph per s)']]) #'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement','Total Distance Traveled','Max Direction Change per sec', ' Direction Stdev','Time (s)', 'Turns', 'Aggressive Turns', 'Stops', 'Large Deceleration Events', 'Deceleration Events', 'Max Deceleration Event']])
 
 ###############################################################################
 # scikit-learn preprocessing; uncomment to see differences
@@ -79,7 +80,7 @@ for k in K:
 	meandisortions.append(sum(np.min(cdist(patched,kmeans.cluster_centers_,'euclidean'),axis=1))/patched.shape[0])
 
 plt.plot(K,meandisortions,'bx-')
-plt.xlabel('k')
+plt.xlabel('Number of clusters (k)')
 plt.ylabel('Average distortion')
 plt.title('Selecting k with the Elbow Method')
 plt.show()
@@ -89,7 +90,7 @@ plt.show()
 ###############################################################################
 
 n_clusters = int(raw_input("Enter your k based on the elbow plot:\n>"))
-cluster = KMeans(n_clusters=n_clusters)
+cluster = KMeans(n_clusters=n_clusters, n_init = 20)
 cluster.fit_transform(patched)
 labels = cluster.labels_
 
@@ -107,8 +108,8 @@ plt.scatter(patched[:, 0], patched[:, 1], color=colors[labels].tolist(), s=10)
 
 plt.xticks(())
 plt.yticks(())
-plt.ylabel('Feature space for the 1st feature')
-plt.xlabel('Feature space for the 2nd feature')
+plt.ylabel('Feature space for the Deceleration feature')
+plt.xlabel('Feature space for the Max Acceleration feature')
 plt.show()
 
 ###############################################################################
