@@ -77,9 +77,13 @@ estimator = MiniBatchKMeans(n_clusters = 5)
 estimator.fit_transform(X_train)
 y_train = estimator.labels_
 
+print len(y_train)
+
 clf = LogisticRegression(C=0.001, penalty ='l2')
 clf.fit_transform(X_train,y_train)
 predictions = clf.predict(X_test)
+
+print len(predictions)
 
 print classification_report(y_train,predictions)
 print 'Precision: ', precision_score(y_train,predictions)
