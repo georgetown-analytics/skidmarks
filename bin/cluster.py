@@ -12,12 +12,22 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import scale
 from sklearn.preprocessing import Imputer
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 from sklearn import linear_model
 import statsmodels.api as sm
 from statsmodels.sandbox.regression.predstd import wls_prediction_std
 >>>>>>> master
+=======
+
 from sklearn import preprocessing
+
+from sklearn import linear_model
+import statsmodels.api as sm
+from statsmodels.sandbox.regression.predstd import wls_prediction_std
+>>>>>>> d17a7f5a32f40703be4c05ceb48dc00371e8ef90
+from sklearn import preprocessing
+
 
 # Some colors for later
 colors = np.array([x for x in 'bgrcmykbgrcmykbgrcmykbgrcmyk'])
@@ -33,7 +43,14 @@ with open("./lin.csv") as in_data:
 #load all numeric data into an array. The offense column from the crime data
 #is excluded
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+>>>>>>> d17a7f5a32f40703be4c05ceb48dc00371e8ef90
 as_array = np.asfarray(skid_data[['Average Velocity (mph)','Turns','Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement','Total Distance Traveled','Max Direction Change per sec', ' Direction Stdev','Time (s)', 'Turns', 'Aggressive Turns', 'Stops', 'Large Deceleration Events', 'Deceleration Events', 'Max Deceleration Event']])
+
+#as_array = np.asfarray(crime_data[['Average Velocity (mph)','Displacement']])#'Max Velocity', 'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement','Total Distance Traveled','Max Direction Change per sec', ' Direction Stdev','Time (s)', 'Turns', 'Aggressive Turns', 'Stops', 'Large Deceleration Events', 'Deceleration Events', 'Max Deceleration Event']])
+
 
 #number of groups
 n_clusters=4
@@ -66,6 +83,11 @@ patched = preprocessing.normalize(patched, norm='l2')
 
 #min_max_scaler = preprocessing.MinMaxScaler()
 #patched = min_max_scaler.fit_transform(patched)
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> d17a7f5a32f40703be4c05ceb48dc00371e8ef90
 >>>>>>> master
 
 
@@ -78,17 +100,22 @@ cluster.fit_transform(patched)
 #assigned grouped labels to the crime data
 labels = cluster.labels_
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+>>>>>>> d17a7f5a32f40703be4c05ceb48dc00371e8ef90
 skid_data["labels"]=labels
 
 
+
+
+<<<<<<< HEAD
 '''
   # Fit the model with our algorithm
 model = MiniBatchKMeans(n_clusters=3)
 model.fit(as)
 '''
 =======
-
-
 #copy dataframe (may be memory intensive but just for illustration)
 skid_data = crime_data.copy()
 #print pd.Series(classified_data)
@@ -106,8 +133,12 @@ predictions = cluster.predict(patched)
 SilouetteCoefficient = metrics.silhouette_score(patched, labels, metric='euclidean')
 
 <<<<<<< HEAD
-print "The Silouette Coefficient score is", SilouetteCoefficient
+<<<<<<< HEAD
 =======
+
+>>>>>>> d17a7f5a32f40703be4c05ceb48dc00371e8ef90
+print "The Silouette Coefficient score is", SilouetteCoefficient
+
 print "The Silouette Coefficient is", SilouetteCoefficient
 
 model = sm.OLS(labels, patched)
@@ -115,7 +146,11 @@ model = sm.OLS(labels, patched)
 results = model.fit()
 
 print results.summary()
+<<<<<<< HEAD
 >>>>>>> master
+=======
+master
+>>>>>>> d17a7f5a32f40703be4c05ceb48dc00371e8ef90
 
 # Find centers
 centers = cluster.cluster_centers_
