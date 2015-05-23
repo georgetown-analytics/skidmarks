@@ -48,9 +48,8 @@ with open(os.path.normpath(os.path.join(path,'lin.csv'))) as in_data:
 ###############################################################################
 # Load Data and Prep for scikit-learn
 ###############################################################################
-train = len(skid_data) * .60
-test = int(train + 1)
-as_array = np.asfarray(skid_data[:int(train)][['Deceleration Events','Max Acceleration (mph per s)']]) #'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement','Total Distance Traveled','Max Direction Change per sec', ' Direction Stdev','Time (s)', 'Turns', 'Aggressive Turns', 'Stops', 'Large Deceleration Events', 'Deceleration Events', 'Max Deceleration Event']])
+
+as_array = np.asfarray(skid_data[['Average Velocity (mph)','Turns']]) #'Velocity Stdev','Average Acceleration (mph per s)', 'Max Acceleration (mph per s)', ' Acceleration Stdev','Displacement','Total Distance Traveled','Max Direction Change per sec', ' Direction Stdev','Time (s)', 'Turns', 'Aggressive Turns', 'Stops', 'Large Deceleration Events', 'Deceleration Events', 'Max Deceleration Event']])
 
 ###############################################################################
 # scikit-learn preprocessing; uncomment to see differences
@@ -108,8 +107,8 @@ plt.scatter(patched[:, 0], patched[:, 1], color=colors[labels].tolist(), s=10)
 
 plt.xticks(())
 plt.yticks(())
-plt.ylabel('Feature space for the Deceleration feature')
-plt.xlabel('Feature space for the Max Acceleration feature')
+plt.ylabel('Feature space for the First feature')
+plt.xlabel('Feature space for the Second feature')
 plt.show()
 
 ###############################################################################
